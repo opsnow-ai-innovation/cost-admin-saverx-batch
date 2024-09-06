@@ -1,0 +1,8 @@
+*
+!target/*-runner
+!target/*-runner.jar
+!target/init-dev.properties
+!target/init-prod.properties
+!target/lib/*
+!target/quarkus-app/*
+!target/.aeskey.properties
