@@ -10,7 +10,7 @@ public class AccountInfo {
     private String payerName;
     private String siteId;
     private String payerId;
-    private double targetCov;
+    private Double targetCov;
     private String status;
     private String lastCollectionDay;
     private Double p1UtilPercent;
@@ -52,11 +52,11 @@ public class AccountInfo {
         this.payerId = payerId;
     }
 
-    public double getTargetCov() {
+    public Double getTargetCov() {
         return targetCov;
     }
 
-    public void setTargetCov(double targetCov) {
+    public void setTargetCov(Double targetCov) {
         this.targetCov = targetCov;
     }
 

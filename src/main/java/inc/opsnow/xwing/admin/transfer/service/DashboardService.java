@@ -89,7 +89,7 @@ public class DashboardService {
         accountInfo.setPayerName(payer.getAlias());
         accountInfo.setSiteId(accountSummary.getSiteCode());
         accountInfo.setPayerId(accountSummary.getPayerAccountId());
-        accountInfo.setTargetCov(payer.getTargetCov()); // fixme : targetCov
+        accountInfo.setTargetCov(payer.getTargetCov());
         accountInfo.setLastCollectionDay(accountSummary.getLastUseDate());
 
         if (accountSummary.getData().get("p1").getUtilization() != null) {
