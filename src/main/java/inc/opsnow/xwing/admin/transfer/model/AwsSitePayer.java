@@ -13,6 +13,8 @@ public class AwsSitePayer {
     String alias;
     @Column("TARGET_COV")
     double targetCov;
+    @Column("FIX_YN")
+    String fixYn;
 
     public String getSiteId() {
         return siteId;
@@ -46,6 +48,14 @@ public class AwsSitePayer {
         this.targetCov = targetCov;
     }
 
+    public String getFixYn() {
+        return fixYn;
+    }
+
+    public void setFixYn(String fixYn) {
+        this.fixYn = fixYn;
+    }
+
     @Override
     public String toString() {
         return "AwsSitePayer{" +
@@ -53,6 +63,7 @@ public class AwsSitePayer {
                 ", payerAccId='" + payerAccId + '\'' +
                 ", alias='" + alias + '\'' +
                 ", targetCov=" + targetCov +
+                ", fixYn='" + fixYn + '\'' +
                 '}';
     }
 }

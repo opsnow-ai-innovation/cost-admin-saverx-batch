@@ -11,6 +11,7 @@ public class AccountInfo {
     private String siteId;
     private String payerId;
     private Double targetCov;
+    private String fixYn;
     private String status;
     private String lastCollectionDay;
     private Double p1UtilPercent;
@@ -58,6 +59,14 @@ public class AccountInfo {
 
     public void setTargetCov(Double targetCov) {
         this.targetCov = targetCov;
+    }
+
+    public String getFixYn() {
+        return fixYn;
+    }
+
+    public void setFixYn(String fixYn) {
+        this.fixYn = fixYn;
     }
 
     public String getStatus() {
@@ -126,12 +135,13 @@ public class AccountInfo {
 
     @Override
     public String toString() {
-        return "XAccountInfo{" +
+        return "AccountInfo{" +
                 "id=" + id +
                 ", payerName='" + payerName + '\'' +
                 ", siteId='" + siteId + '\'' +
                 ", payerId='" + payerId + '\'' +
                 ", targetCov=" + targetCov +
+                ", fixYn='" + fixYn + '\'' +
                 ", status='" + status + '\'' +
                 ", lastCollectionDay='" + lastCollectionDay + '\'' +
                 ", p1UtilPercent=" + p1UtilPercent +

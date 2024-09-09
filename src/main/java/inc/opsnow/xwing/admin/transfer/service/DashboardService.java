@@ -90,6 +90,7 @@ public class DashboardService {
         accountInfo.setSiteId(accountSummary.getSiteCode());
         accountInfo.setPayerId(accountSummary.getPayerAccountId());
         accountInfo.setTargetCov(payer.getTargetCov());
+        accountInfo.setFixYn(payer.getFixYn());
         accountInfo.setLastCollectionDay(accountSummary.getLastUseDate());
 
         if (accountSummary.getData().get("p1").getUtilization() != null) {
