@@ -31,10 +31,13 @@ public class DashboardQuery {
     // 테이블 등록
     public final static String INSERT_ACCOUNT_INFO = """
             insert into cmp_admin.x_account_info (PAYER_NAME, SITE_ID, PAYER_ID, TARGET_COV, FIX_YN,
-                            LAST_COLLECTION_DAY, P1_UTIL_PERCENT, P1_COV_PERCENT, P2_UTIL_PERCENT, P2_COV_PERCENT,
+                            LAST_COLLECTION_DAY, LATEST_UTIL_PERCENT, LATEST_COV_PERCENT, AVG_UTIL_PERCENT, AVG_COV_PERCENT,
+                            P1_UTIL_PERCENT, P1_COV_PERCENT, P2_UTIL_PERCENT, P2_COV_PERCENT,
                             CREATED_DATE, LAST_MODIFIED_DATE)
             values (?, ?, ?, ?, ?,
                     ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?,
                     NOW(), NOW())
             """;
+
 }

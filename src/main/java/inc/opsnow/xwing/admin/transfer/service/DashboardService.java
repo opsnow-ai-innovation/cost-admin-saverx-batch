@@ -58,7 +58,8 @@ public class DashboardService {
 
     private Uni<List<AccountInfo>> processBatch(List<AwsSitePayer> batch) {
         return Multi.createFrom().iterable(batch)
-                .onItem().transformToUniAndMerge(this::getAwsPayerAccountSummary)
+                .onItem().transformToUniAndMerge(payer -> getAwsPayerAccountSummary(payer)
+                        .chain(this::updateAwsPayerAccountSummary))
                 .onFailure().retry().withBackOff(RETRY_DELAY).atMost(MAX_RETRIES)
                 .collect().asList();
     }
@@ -81,7 +82,7 @@ public class DashboardService {
                 ;
     }
 
-    public AccountInfo mapFromSummary(AwsSitePayer payer, GetAwsPayerAccountSummaryResponse accountSummary) throws Exception {
+    private AccountInfo mapFromSummary(AwsSitePayer payer, GetAwsPayerAccountSummaryResponse accountSummary) throws Exception {
 
         Log.info(accountSummary.toString());
 
@@ -92,6 +93,8 @@ public class DashboardService {
         accountInfo.setTargetCov(payer.getTargetCov());
         accountInfo.setFixYn(payer.getFixYn());
         accountInfo.setLastCollectionDay(accountSummary.getLastUseDate());
+        accountInfo.setLatestUtilPercent(0.0);
+        accountInfo.setLatestCovPercent(0.0);
 
         if (accountSummary.getData().get("p1").getUtilization() != null) {
             accountInfo.setP1UtilPercent(accountSummary.getData().get("p1").getUtilization().getTotalUtilization());
@@ -107,5 +110,31 @@ public class DashboardService {
         }
 
         return accountInfo;
+    }
+
+
+    private Uni<AccountInfo> updateAwsPayerAccountSummary(AccountInfo accountInfo) {
+        return summaryService.getByIdAsync(accountInfo.getSiteId(), accountInfo.getPayerId(), analyzeTerm * 2, 1)
+                .ifNoItem().after(TIMEOUT).fail()
+                .onFailure().invoke(e -> Log.error("Request failed for payer " + accountInfo.getPayerId() + ": " + e.getMessage()))
+                .onItem().invoke(item -> Log.info("Received response for payer " + accountInfo.getPayerId() + ": " + item.getStatus()))
+                .map(item -> {
+                    try {
+
+                        Log.infof("Received response for payer %s: %s", accountInfo.getPayerId(), item.toString());
+                        if(item.getData().get("p1").getUtilization() == null || item.getData().get("p1").getCoverage() == null) {
+                            Log.errorf("Missing data for payer %s: %s", accountInfo.getPayerId(), item.toString());
+                            return accountInfo;
+                        }
+
+                        accountInfo.setAvgUtilPercent(item.getData().get("p1").getUtilization().getTotalUtilization());
+                        accountInfo.setAvgCovPercent(item.getData().get("p1").getCoverage().getTotalCoverage());
+
+                        return accountInfo;
+                    } catch (Exception e) {
+                        Log.error("Failed to map response to AccountInfo", e);
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 }

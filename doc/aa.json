@@ -1,0 +1,36 @@
+{
+  p1=PeriodData{
+  startDate=
+  '20240910',
+  endDate=
+  '20240916',
+  utilization=Utilization{
+  totalUtilization=100.00000000316452,
+  totalCommitmentCost=3637.2,
+  totalUsedCost=3637.2000001151,
+  totalOnDemandCostEquivalent=6761.7242034173,
+  totalNetSavings=3124.5242034172998,
+  totalNetSavingsRate=46.20898619080324,
+  customerUtilization=0.0,
+  customerCommitmentCost=0.0,
+  customerUsedCost=0.0,
+  customerOnDemandCostEquivalent=0.0,
+  customerNetSavings=0.0,
+  customerNetSavingsRate=0.0,
+  opsnowUtilization=100.00000000316452,
+  opsnowCommitmentCost=3637.2,
+  opsnowUsedCost=3637.2000001151,
+  opsnowOnDemandCostEquivalent=6761.7242034173,
+  opsnowNetSavings=3124.5242034172998,
+  opsnowNetSavingsRate=46.20898619080324
+},
+coverage=Coverage{
+totalCoverage=79.54345576525617,
+customerCoverage=0.0,
+opsnowCoverage=79.54345576525617,
+opsnowOnDemandCostEquivalent=6761.7242034173,
+customerOnDemandCostEquivalent=0.0, onDemandCost=1738.9426815771, commitmentOnDemandCostEquivalent=6761.7242034173, totalOnDemandCostEquivalent=8500.6668849944}}, p2=PeriodData{startDate='20240903', endDate='20240909', utilization=Utilization{totalUtilization=100.0000000098345, totalCommitmentCost=3637.2, totalUsedCost=3637.2000003577, totalOnDemandCostEquivalent=6764.31907169, totalNetSavings=3127.11907169, totalNetSavingsRate=46.22962102390477, customerUtilization=0.0, customerCommitmentCost=0.0, customerUsedCost=0.0, customerOnDemandCostEquivalent=0.0, customerNetSavings=0.0, customerNetSavingsRate=0.0, opsnowUtilization=100.0000000098345, opsnowCommitmentCost=3637.2, opsnowUsedCost=3637.2000003577, opsnowOnDemandCostEquivalent=6764.31907169, opsnowNetSavings=3127.11907169, opsnowNetSavingsRate=46.22962102390477}, coverage=Coverage{totalCoverage=80.32220730881417, customerCoverage=0.0, opsnowCoverage=80.32220730881417, opsnowOnDemandCostEquivalent=6764.31907169, customerOnDemandCostEquivalent=0.0, onDemandCost=1657.1614855901, commitmentOnDemandCostEquivalent=6764.31907169, totalOnDemandCostEquivalent=8421.4805572801
+}
+}
+}
+}

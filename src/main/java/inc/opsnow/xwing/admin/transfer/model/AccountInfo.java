@@ -2,10 +2,12 @@ package inc.opsnow.xwing.admin.transfer.model;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @RegisterForReflection
 public class AccountInfo {
+
     private Long id;
     private String payerName;
     private String siteId;
@@ -14,12 +16,17 @@ public class AccountInfo {
     private String fixYn;
     private String status;
     private String lastCollectionDay;
+    private Double latestUtilPercent;
+    private Double latestCovPercent;
+    private Double avgUtilPercent;
+    private Double avgCovPercent;
     private Double p1UtilPercent;
     private Double p1CovPercent;
     private Double p2UtilPercent;
     private Double p2CovPercent;
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
+
 
     public Long getId() {
         return id;
@@ -59,6 +66,38 @@ public class AccountInfo {
 
     public void setTargetCov(Double targetCov) {
         this.targetCov = targetCov;
+    }
+
+    public Double getLatestUtilPercent() {
+        return latestUtilPercent;
+    }
+
+    public void setLatestUtilPercent(Double latestUtilPercent) {
+        this.latestUtilPercent = latestUtilPercent;
+    }
+
+    public Double getLatestCovPercent() {
+        return latestCovPercent;
+    }
+
+    public void setLatestCovPercent(Double latestCovPercent) {
+        this.latestCovPercent = latestCovPercent;
+    }
+
+    public Double getAvgUtilPercent() {
+        return avgUtilPercent;
+    }
+
+    public void setAvgUtilPercent(Double avgUtilPercent) {
+        this.avgUtilPercent = avgUtilPercent;
+    }
+
+    public Double getAvgCovPercent() {
+        return avgCovPercent;
+    }
+
+    public void setAvgCovPercent(Double avgCovPercent) {
+        this.avgCovPercent = avgCovPercent;
     }
 
     public String getFixYn() {
@@ -144,6 +183,10 @@ public class AccountInfo {
                 ", fixYn='" + fixYn + '\'' +
                 ", status='" + status + '\'' +
                 ", lastCollectionDay='" + lastCollectionDay + '\'' +
+                ", latestUtilPercent=" + latestUtilPercent +
+                ", latestCovPercent=" + latestCovPercent +
+                ", avgUtilPercent=" + avgUtilPercent +
+                ", avgCovPercent=" + avgCovPercent +
                 ", p1UtilPercent=" + p1UtilPercent +
                 ", p1CovPercent=" + p1CovPercent +
                 ", p2UtilPercent=" + p2UtilPercent +
