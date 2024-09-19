@@ -19,6 +19,10 @@ public class DashboardQuery {
             """;
 
     // 먼저 테이블 삭제
+    public final static String DELETE_ACCOUNT_INFO_RESULT = """
+            delete from cmp_admin.x_account_info_result
+            where ACCOUNT_ID IN (select ID from cmp_admin.x_account_info where SITE_ID = ?)
+            """;
     public final static String DELETE_ACCOUNT_INFO = """
             delete from cmp_admin.x_account_info
             where SITE_ID = ?
