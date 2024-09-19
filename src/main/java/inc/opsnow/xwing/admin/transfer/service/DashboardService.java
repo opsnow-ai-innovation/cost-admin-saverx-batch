@@ -93,8 +93,17 @@ public class DashboardService {
         accountInfo.setTargetCov(payer.getTargetCov());
         accountInfo.setFixYn(payer.getFixYn());
         accountInfo.setLastCollectionDay(accountSummary.getLastUseDate());
-        accountInfo.setLatestUtilPercent(0.0);
-        accountInfo.setLatestCovPercent(0.0);
+
+        if(accountSummary.getLatest() != null && accountSummary.getLatest().getUtilization() != null) {
+            accountInfo.setLatestUtilPercent(accountSummary.getLatest().getUtilization().getTotalUtilization());
+        }else{
+            accountInfo.setLatestUtilPercent(0.0);
+        }
+        if(accountSummary.getLatest() != null && accountSummary.getLatest().getCoverage() != null) {
+            accountInfo.setLatestCovPercent(accountSummary.getLatest().getCoverage().getTotalCoverage());
+        }else{
+            accountInfo.setLatestCovPercent(0.0);
+        }
 
         if (accountSummary.getData().get("p1").getUtilization() != null) {
             accountInfo.setP1UtilPercent(accountSummary.getData().get("p1").getUtilization().getTotalUtilization());

@@ -7,16 +7,18 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import java.util.Map;
 
 public class GetAwsPayerAccountSummaryResponse {
-    public String status;
-    public Error error;
+    private String status;
+    private Error error;
     @Schema(description = "Site Code", example = "OPSNOW")
-    public String siteCode;
+    private String siteCode;
     @Schema(description = "Payer Account ID")
-    public String payerAccountId;
-    @Schema(description = "Payer Account ID")
-    public String lastUseDate;
+    private String payerAccountId;
+    @Schema(description = "최종 유효 수집일")
+    private String lastUseDate;
+    @Schema(description = "최종 유효 수집일 데이터")
+    private AwsPayerAccountSummary latest;
     @Schema(description = "약정 데이터 요약")
-    public Map<String, AwsPayerAccountSummary> data;
+    private Map<String, AwsPayerAccountSummary> data;
 
     public String getStatus() {
         return status;
@@ -58,6 +60,14 @@ public class GetAwsPayerAccountSummaryResponse {
         this.lastUseDate = lastUseDate;
     }
 
+    public AwsPayerAccountSummary getLatest() {
+        return latest;
+    }
+
+    public void setLatest(AwsPayerAccountSummary latest) {
+        this.latest = latest;
+    }
+
     public Map<String, AwsPayerAccountSummary> getData() {
         return data;
     }
@@ -68,11 +78,13 @@ public class GetAwsPayerAccountSummaryResponse {
 
     @Override
     public String toString() {
-        return "CostAnalysis{" +
+        return "GetAwsPayerAccountSummaryResponse{" +
                 "status='" + status + '\'' +
+                ", error=" + error +
                 ", siteCode='" + siteCode + '\'' +
                 ", payerAccountId='" + payerAccountId + '\'' +
-                ", lastUseDate=" + lastUseDate +
+                ", lastUseDate='" + lastUseDate + '\'' +
+                ", latest=" + latest +
                 ", data=" + data +
                 '}';
     }
