@@ -38,6 +38,13 @@
             <artifactId>quarkus-mutiny</artifactId>
         </dependency>
 
+        <!-- for aws secret manager -->
+        <dependency>
+            <groupId>io.quarkiverse.amazonservices</groupId>
+            <artifactId>quarkus-amazon-secretsmanager</artifactId>
+            <version>2.17.0</version>
+        </dependency>
+
 
         <!-- resteasy client -->
         <dependency>
@@ -95,6 +102,14 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
             <version>1.78</version>
+        </dependency>
+
+
+        <!-- authorization -->
+        <dependency>
+            <groupId>org.eclipse.microprofile.openapi</groupId>
+            <artifactId>microprofile-openapi-api</artifactId>
+            <version>3.1.1</version>
         </dependency>
 
         <!-- for util -->
