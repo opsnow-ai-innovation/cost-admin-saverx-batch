@@ -57,7 +57,7 @@ public class DecryptedConfigSource implements ConfigSource {
 
     private void setSystemProperties(String aesKey) {
         try {
-            String currentProfile = System.getProperty("quarkus.profile", "local");
+            String currentProfile = System.getProperty("quarkus.profile", "dev");
             Log.info("Current Profile: " + currentProfile);
 
             List<String> lines = readFileFromClasspath("init-" + currentProfile + ".properties");
