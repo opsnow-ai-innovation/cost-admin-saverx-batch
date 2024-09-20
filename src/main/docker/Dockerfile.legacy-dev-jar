@@ -89,7 +89,7 @@ COPY target/init-dev.properties /home/jboss/init-dev.properties
 COPY target/.aeskey.properties /home/jboss/.aeskey.properties
 
 
-EXPOSE 8080
+EXPOSE 9005
 USER 185
 ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus.profile=dev"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
