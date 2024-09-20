@@ -97,17 +97,6 @@
             <version>1.78</version>
         </dependency>
 
-
-        <!-- authorization -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-oidc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-keycloak-authorization</artifactId>
-        </dependency>
-
         <!-- for util -->
         <dependency>
             <groupId>io.quarkus</groupId>
