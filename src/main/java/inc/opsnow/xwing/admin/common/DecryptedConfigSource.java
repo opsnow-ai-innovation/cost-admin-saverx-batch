@@ -60,7 +60,12 @@ public class DecryptedConfigSource implements ConfigSource {
             String currentProfile = System.getProperty("quarkus.profile", "dev");
             Log.info("Current Profile: " + currentProfile);
 
-            List<String> lines = readFileFromClasspath("init-" + currentProfile + ".properties");
+            String fileName = "init-" + currentProfile + ".properties";
+            if (!Files.exists(Paths.get(System.getProperty("user.home"), fileName))) {
+                fileName = "init.properties";
+            }
+
+            List<String> lines = readFileFromClasspath(fileName);
             for (String line : lines) {
                 String[] parts = line.split("=", 2);
                 if (parts.length == 2) {
