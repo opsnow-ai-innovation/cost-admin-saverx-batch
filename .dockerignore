@@ -1,6 +1,7 @@
 *
 !target/*-runner
 !target/*-runner.jar
+!target/init.properties
 !target/init-dev.properties
 !target/init-prod.properties
 !target/lib/*
