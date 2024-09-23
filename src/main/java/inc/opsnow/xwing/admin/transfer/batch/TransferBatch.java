@@ -22,7 +22,7 @@ public class TransferBatch {
     // batch 스케줄러
     // cron 초, 분, 시, 일, 월
     //@Scheduled(cron = "0 45 1 * * ?", identity = "transfer-init-daily-job")
-    @Scheduled(cron = "0 */5 * * * ?", identity = "transfer-init-daily-job")
+    @Scheduled(cron = "0 0 */3 * * ?", identity = "transfer-init-daily-job")
     void schedule() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
