@@ -80,14 +80,17 @@ public class TransferBatch {
 
     private Uni<Void> startAdmEngine() {
         return ecsService.updateAdmEngineService(1)
-                .onItem().invoke(response -> {
+                .onItem().transformToUni(response -> {
                     if (response.sdkHttpResponse().isSuccessful()) {
                         Log.info("EcsService updateAdmEngineService successful");
+                        return Uni.createFrom().voidItem();
                     } else {
-                        throw new RuntimeException("EcsService updateAdmengineService failed");
+                        Log.errorf("EcsService updateAdmengineService failed with status: %d",
+                                response.sdkHttpResponse().statusCode());
+                        return Uni.createFrom().failure(new RuntimeException("EcsService updateAdmengineService failed"));
                     }
                 })
-                .replaceWithVoid();
+                .onFailure().invoke(e -> Log.errorf("Error in startAdmEngine: %s", e.getMessage()));
     }
 
     private Uni<Void> waitForHealthyEngine() {
@@ -110,17 +113,18 @@ public class TransferBatch {
                 .onItem().invoke(trigger -> Log.infof("EngineStartService getTrigger result: %d", trigger.getStatusInfo().getStatusCode()))
                 .replaceWithVoid();
     }
-
     private Uni<Void> stopAdmEngine() {
         return ecsService.updateAdmEngineService(0)
-                .onItem().invoke(response -> {
+                .onItem().transformToUni(response -> {
                     if (response.sdkHttpResponse().isSuccessful()) {
                         Log.info("EcsService updateAdmengineService (stop) successful");
+                        return Uni.createFrom().voidItem();
                     } else {
-                        throw new RuntimeException("EcsService updateAdmengineService (stop) failed");
+                        Log.errorf("EcsService updateAdmengineService (stop) failed");
+                        return Uni.createFrom().failure(new RuntimeException("EcsService updateAdmengineService (stop) failed"));
                     }
                 })
-                .replaceWithVoid();
+                .onFailure().invoke(e -> Log.errorf("Error in stopAdmEngine: %s", e.getMessage()));
     }
 
     public Uni<Response> batchStart(String siteId) {
