@@ -5,6 +5,7 @@ import inc.opsnow.xwing.admin.transfer.external.ecs.EcsService;
 import inc.opsnow.xwing.admin.transfer.service.DashboardService;
 import io.quarkus.logging.Log;
 import io.quarkus.scheduler.Scheduled;
+import io.smallrye.mutiny.unchecked.Unchecked;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -32,16 +33,13 @@ public class TransferBatch {
     @RestClient
     EngineStartService engineStartService;
 
-
     private static final int MAX_RETRIES = 10;
     private static final Duration RETRY_DELAY = Duration.ofSeconds(30);
     private static final Duration HEALTH_CHECK_TIMEOUT = Duration.ofMinutes(5);
-    private static final Duration HEALTH_CHECK_INTERVAL = Duration.ofMinutes(1);
+    private static final Duration HEALTH_CHECK_INTERVAL = Duration.ofSeconds(10); // 10초 간격으로 체크
+    private static final Duration INITIAL_WAIT = Duration.ofMinutes(2); // 초기 1분 대기
+    private static final Duration POST_WAIT = Duration.ofSeconds(10); // 추가 10초 대기
 
-
-    // batch 스케줄러
-    // cron 초, 분, 시, 일, 월
-    //@Scheduled(cron = "0 45 1 * * ?", identity = "transfer-init-daily-job")
     @Scheduled(cron = "0 0 */3 * * ?", identity = "transfer-init-daily-job")
     void schedule() {
         LocalDateTime now = LocalDateTime.now();
@@ -55,31 +53,23 @@ public class TransferBatch {
                 .onItem().invoke(() -> Log.info("TransferBatch schedule completed successfully"))
                 .onFailure().invoke(error -> Log.error("TransferBatch schedule failed", error))
                 .subscribe().with(
-                        item -> {
-                            processDashboardAndTrigger()
-                                    .chain(v -> stopAdmEngine())
-                                    .subscribe().with(
-                                            res -> Log.info("TransferBatch processDashboardAndTrigger completed successfully"),
-                                            error -> Log.error("TransferBatch processDashboardAndTrigger failed", error)
-                                    );
-                        }, // 성공 시 추가 작업이 필요 없으면 빈 람다
-                        error -> {} // 실패 시 추가 작업이 필요 없으면 빈 람다
+                        item -> Log.info("TransferBatch completed successfully"),
+                        error -> Log.error("TransferBatch failed", error)
                 );
     }
 
     @Retry(maxRetries = MAX_RETRIES, delay = 30000, retryOn = Exception.class)
     Uni<Void> startTransferBatch() {
-        return Uni.createFrom().item(() -> {
-                    return startAdmEngine()
-                            .chain(v -> waitForHealthyEngine());
-                })
+        return startAdmEngine()
+                .onItem().delayIt().by(INITIAL_WAIT) // startAdmEngine 후 1분 대기
+                .chain(v -> waitForHealthyEngine()) // 엔진 상태 체크
+                .onItem().delayIt().by(POST_WAIT) // 정상 확인 후 10초 대기
+                .chain(v -> processDashboardAndTrigger()) // 대시보드 처리 및 트리거 호출
+                .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
+                .chain(v -> stopAdmEngine()) // 엔진 중지
                 .onFailure().invoke(e -> {
                     Log.errorf("Error in startTransferBatch: %s. Retrying...", e.getMessage());
-                })
-                .onFailure().retry().withBackOff(RETRY_DELAY).atMost(MAX_RETRIES)
-                .onFailure().invoke(e -> {
-                    Log.errorf("All retries failed for startTransferBatch. Final error: %s", e.getMessage());
-                }).replaceWithVoid();
+                });
     }
 
     private Uni<Void> startAdmEngine() {
@@ -89,9 +79,9 @@ public class TransferBatch {
                         Log.info("EcsService updateAdmEngineService successful");
                         return Uni.createFrom().voidItem();
                     } else {
-                        Log.errorf("EcsService updateAdmengineService failed with status: %d",
+                        Log.errorf("EcsService updateAdmEngineService failed with status: %d",
                                 response.getStatusCode());
-                        return Uni.createFrom().failure(new RuntimeException("EcsService updateAdmengineService failed"+response.getMessage()));
+                        return Uni.createFrom().failure(new RuntimeException("EcsService updateAdmEngineService failed: " + response.getMessage()));
                     }
                 })
                 .onFailure().invoke(e -> Log.errorf("Error in startAdmEngine: %s", e.getMessage()));
@@ -99,33 +89,35 @@ public class TransferBatch {
 
     private Uni<Void> waitForHealthyEngine() {
         return Uni.createFrom().voidItem()
-                .onItem().delayIt().by(HEALTH_CHECK_INTERVAL)
-                .onItem().transformToUni(v -> engineStartService.getHealth())
-                .onItem().invoke(health -> {
+                .onItem().delayIt().by(HEALTH_CHECK_INTERVAL) // 10초 대기 후 상태 체크 시작
+                .chain(v -> engineStartService.getHealth())
+                .onItem().invoke(Unchecked.consumer(health -> {
                     Log.infof("EngineStartService getHealth result: %d", health.getStatusInfo().getStatusCode());
                     if (health.getStatusInfo().getStatusCode() != 200) {
                         throw new RuntimeException("Engine health check failed");
                     }
-                })
+                }))
                 .replaceWithVoid()
-                .onFailure().retry().withBackOff(HEALTH_CHECK_INTERVAL).atMost(HEALTH_CHECK_TIMEOUT.dividedBy(HEALTH_CHECK_INTERVAL));
+                .onFailure().retry().withBackOff(HEALTH_CHECK_INTERVAL).atMost(HEALTH_CHECK_TIMEOUT.dividedBy(HEALTH_CHECK_INTERVAL)); // 최대 5분간 재시도
     }
 
     private Uni<Void> processDashboardAndTrigger() {
-        return dashboardService.getPayerAndTestTimeout("siteId") // siteId should be properly set
+        return dashboardService.getPayerAndTestTimeout(siteId)
                 .onItem().transformToUni(v -> engineStartService.getTrigger())
                 .onItem().invoke(trigger -> Log.infof("EngineStartService getTrigger result: %d", trigger.getStatusInfo().getStatusCode()))
                 .replaceWithVoid();
     }
+
     private Uni<Void> stopAdmEngine() {
         return ecsService.updateAdmEngineService(0)
                 .onItem().transformToUni(response -> {
                     if (response.isSuccessful()) {
-                        Log.info("EcsService updateAdmengineService (stop) successful");
+                        Log.info("EcsService updateAdmEngineService (stop) successful");
                         return Uni.createFrom().voidItem();
                     } else {
-                        Log.errorf("EcsService updateAdmengineService (stop) failed");
-                        return Uni.createFrom().failure(new RuntimeException("EcsService updateAdmengineService (stop) failed" + response.getMessage()));
+                        Log.errorf("EcsService updateAdmEngineService (stop) failed with status: %d",
+                                response.getStatusCode());
+                        return Uni.createFrom().failure(new RuntimeException("EcsService updateAdmEngineService (stop) failed: " + response.getMessage()));
                     }
                 })
                 .onFailure().invoke(e -> Log.errorf("Error in stopAdmEngine: %s", e.getMessage()));
