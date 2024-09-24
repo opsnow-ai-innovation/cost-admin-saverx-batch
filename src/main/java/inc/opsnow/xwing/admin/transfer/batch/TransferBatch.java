@@ -81,13 +81,13 @@ public class TransferBatch {
     private Uni<Void> startAdmEngine() {
         return ecsService.updateAdmEngineService(1)
                 .onItem().transformToUni(response -> {
-                    if (response.sdkHttpResponse().isSuccessful()) {
+                    if (response.isSuccessful()) {
                         Log.info("EcsService updateAdmEngineService successful");
                         return Uni.createFrom().voidItem();
                     } else {
                         Log.errorf("EcsService updateAdmengineService failed with status: %d",
-                                response.sdkHttpResponse().statusCode());
-                        return Uni.createFrom().failure(new RuntimeException("EcsService updateAdmengineService failed"));
+                                response.getStatusCode());
+                        return Uni.createFrom().failure(new RuntimeException("EcsService updateAdmengineService failed"+response.getMessage()));
                     }
                 })
                 .onFailure().invoke(e -> Log.errorf("Error in startAdmEngine: %s", e.getMessage()));
@@ -116,12 +116,12 @@ public class TransferBatch {
     private Uni<Void> stopAdmEngine() {
         return ecsService.updateAdmEngineService(0)
                 .onItem().transformToUni(response -> {
-                    if (response.sdkHttpResponse().isSuccessful()) {
+                    if (response.isSuccessful()) {
                         Log.info("EcsService updateAdmengineService (stop) successful");
                         return Uni.createFrom().voidItem();
                     } else {
                         Log.errorf("EcsService updateAdmengineService (stop) failed");
-                        return Uni.createFrom().failure(new RuntimeException("EcsService updateAdmengineService (stop) failed"));
+                        return Uni.createFrom().failure(new RuntimeException("EcsService updateAdmengineService (stop) failed" + response.getMessage()));
                     }
                 })
                 .onFailure().invoke(e -> Log.errorf("Error in stopAdmEngine: %s", e.getMessage()));

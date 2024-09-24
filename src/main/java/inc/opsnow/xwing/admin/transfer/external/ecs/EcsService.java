@@ -22,22 +22,27 @@ public class EcsService {
     @ConfigProperty(name = "engine.service")
     String service;
 
-    public UpdateServiceResponse updateServiceDesiredCount(String cluster, String service, int desiredCount) {
+    public ServiceUpdateResult updateServiceDesiredCount(String cluster, String service, int desiredCount) {
         UpdateServiceRequest updateServiceRequest = UpdateServiceRequest.builder()
                 .cluster(cluster)
                 .service(service)
                 .desiredCount(desiredCount)
                 .build();
 
-        return ecsClient.updateService(updateServiceRequest);
+        UpdateServiceResponse response = ecsClient.updateService(updateServiceRequest);
+
+        return new ServiceUpdateResult(
+                response.sdkHttpResponse().isSuccessful(),
+                response.sdkHttpResponse().statusText().orElse("No status text"),
+                response.sdkHttpResponse().statusCode()
+        );
     }
 
-    public Uni<UpdateServiceResponse> updateAdmEngineService(int desiredCount) {
-
+    public Uni<ServiceUpdateResult> updateAdmEngineService(int desiredCount) {
         Log.infof("Update service desired count. cluster: %s, service: %s, desiredCount: %s", cluster, service, desiredCount);
 
-        UpdateServiceResponse response = updateServiceDesiredCount(cluster, service, desiredCount);
-        System.out.println(response);
-        return Uni.createFrom().item(response);
+        ServiceUpdateResult result = updateServiceDesiredCount(cluster, service, desiredCount);
+        Log.infof("Service update result: %s", result);
+        return Uni.createFrom().item(result);
     }
 }

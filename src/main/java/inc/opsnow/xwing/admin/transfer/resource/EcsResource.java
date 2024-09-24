@@ -1,12 +1,12 @@
 package inc.opsnow.xwing.admin.transfer.resource;
 
-import io.smallrye.mutiny.Uni;
 import inc.opsnow.xwing.admin.transfer.external.ecs.EcsService;
+import inc.opsnow.xwing.admin.transfer.external.ecs.ServiceUpdateResult;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
-import software.amazon.awssdk.services.ecs.model.UpdateServiceResponse;
 
 @Path("/ecs")
 public class EcsResource {
@@ -16,7 +16,7 @@ public class EcsResource {
 
     @POST
     @Path("/update-admengine")
-    public Uni<UpdateServiceResponse> updateAdmEngineService(@QueryParam("desiredCount") int desiredCount) {
+    public Uni<ServiceUpdateResult> updateAdmEngineService(@QueryParam("desiredCount") int desiredCount) {
         return ecsService.updateAdmEngineService(desiredCount);
     }
 
