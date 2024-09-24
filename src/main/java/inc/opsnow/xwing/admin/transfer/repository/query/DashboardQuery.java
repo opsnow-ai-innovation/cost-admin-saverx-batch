@@ -40,4 +40,8 @@ public class DashboardQuery {
                     NOW(), NOW())
             """;
 
+    // select count(0) cnt from cmp_admin.x_account_info where SITE_ID='OPSNOW' and STATUS='COMMIT'
+    public final static String GET_ACCOUNT_INFO_COMMIT_COUNT = """
+            select count(0) cnt from cmp_admin.x_account_info where SITE_ID=? and STATUS='COMMIT'
+            """;
 }

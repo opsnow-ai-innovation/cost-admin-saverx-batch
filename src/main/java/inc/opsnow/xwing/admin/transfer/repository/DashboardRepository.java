@@ -30,4 +30,8 @@ public class DashboardRepository extends RepositoryBase {
         });
     }
 
+    public Uni<Integer> getAccountInfoCommitCount(MySQLPool pool, String siteId) {   //GET_ACCOUNT_INFO_COMMIT_COUNT
+        return findByIdClass(pool, DashboardQuery.GET_ACCOUNT_INFO_COMMIT_COUNT, Tuple.of(siteId), Integer.class);
+    }
+
 }

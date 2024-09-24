@@ -50,6 +50,9 @@ public class DashboardService {
                 .invoke(() -> Log.info("Finished saving account info"))
                 ;
     }
+    public Uni<Integer> getAccountInfoCommitCount(String siteId) {
+        return dashboardRepository.getAccountInfoCommitCount(billPool, siteId);
+    }
 
 
     private Uni<List<AwsSitePayer>> getPayer(String siteId) {

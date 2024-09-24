@@ -17,6 +17,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @ApplicationScoped
 public class TransferBatch {
@@ -34,11 +35,15 @@ public class TransferBatch {
     EngineStartService engineStartService;
 
     private static final int MAX_RETRIES = 10;
-    private static final Duration RETRY_DELAY = Duration.ofSeconds(30);
     private static final Duration HEALTH_CHECK_TIMEOUT = Duration.ofMinutes(5);
     private static final Duration HEALTH_CHECK_INTERVAL = Duration.ofSeconds(10); // 10초 간격으로 체크
-    private static final Duration INITIAL_WAIT = Duration.ofMinutes(2); // 초기 1분 대기
+    private static final Duration INITIAL_WAIT = Duration.ofMinutes(2); // 초기 2분 대기
     private static final Duration POST_WAIT = Duration.ofSeconds(10); // 추가 10초 대기
+
+    // 엔진 수행 여부 체크
+    // 매 30초마다 50분간 엔진 상태 체크
+    private static final Duration CHECK_INTERVAL = Duration.ofSeconds(30);
+    private static final Duration MAX_CHECK_DURATION = Duration.ofMinutes(50); // 최대 체크 시간 정의 (예: 50분)
 
     @Scheduled(cron = "0 0 */3 * * ?", identity = "transfer-init-daily-job")
     void schedule() {
@@ -65,6 +70,8 @@ public class TransferBatch {
                 .chain(v -> waitForHealthyEngine()) // 엔진 상태 체크
                 .onItem().delayIt().by(POST_WAIT) // 정상 확인 후 10초 대기
                 .chain(v -> processDashboardAndTrigger()) // 대시보드 처리 및 트리거 호출
+                .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
+                .chain(expectedCount -> getAccountInfoCommitCount(siteId, expectedCount)) // 엔진 중지
                 .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
                 .chain(v -> stopAdmEngine()) // 엔진 중지
                 .onFailure().invoke(e -> {
@@ -101,11 +108,39 @@ public class TransferBatch {
                 .onFailure().retry().withBackOff(HEALTH_CHECK_INTERVAL).atMost(HEALTH_CHECK_TIMEOUT.dividedBy(HEALTH_CHECK_INTERVAL)); // 최대 5분간 재시도
     }
 
-    private Uni<Void> processDashboardAndTrigger() {
+    private Uni<Integer> processDashboardAndTrigger() {
         return dashboardService.getPayerAndTestTimeout(siteId)
-                .onItem().transformToUni(v -> engineStartService.getTrigger())
-                .onItem().invoke(trigger -> Log.infof("EngineStartService getTrigger result: %d", trigger.getStatusInfo().getStatusCode()))
-                .replaceWithVoid();
+                .onItem().transformToUni(v -> engineStartService.getTrigger()
+                        .chain(response -> {
+                            if (response.getStatus() == 200) {
+                                Log.info("EngineStartService getTrigger successful");
+                                return Uni.createFrom().item(v);
+                            } else {
+                                Log.errorf("EngineStartService getTrigger failed with status: %d", response.getStatus());
+                                return Uni.createFrom().failure(new RuntimeException("EngineStartService getTrigger failed"));
+                            }
+                        }))
+                ;
+    }
+
+    private Uni<Void> getAccountInfoCommitCount(String siteId, Integer expectedCount) {
+        return Uni.createFrom().voidItem()
+                .chain(() -> tryGetAccountInfoCommitCount(siteId, expectedCount)) // 실제 체크 로직으로 체이닝
+                .onFailure().retry().withBackOff(CHECK_INTERVAL).atMost(MAX_CHECK_DURATION.dividedBy(CHECK_INTERVAL)); // 10초 간격으로 최대 5분간 재시도
+    }
+
+    private Uni<Void> tryGetAccountInfoCommitCount(String siteId, Integer expectedCount) {
+        return dashboardService.getAccountInfoCommitCount(siteId)
+                .chain(count -> {
+                    if (Objects.equals(count, expectedCount)) {
+                        Log.infof("AccountInfo commit count matched: %d", count);
+                        return Uni.createFrom().voidItem(); // count가 일치하면 성공 처리
+                    } else {
+                        Log.infof("AccountInfo commit count: %d, expected: %d. Retrying...", count, expectedCount);
+                        return Uni.createFrom().failure(new RuntimeException("AccountInfo commit count mismatch")); // 일치하지 않으면 실패 처리하여 재시도
+                    }
+                })
+                .onFailure().invoke(e -> Log.warn("Retrying commit count check..."));
     }
 
     private Uni<Void> stopAdmEngine() {
