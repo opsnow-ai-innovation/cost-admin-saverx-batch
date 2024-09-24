@@ -38,13 +38,17 @@
             <artifactId>quarkus-mutiny</artifactId>
         </dependency>
 
-        <!-- for aws secret manager -->
+        <!-- for aws  -->
         <dependency>
-            <groupId>io.quarkiverse.amazonservices</groupId>
-            <artifactId>quarkus-amazon-secretsmanager</artifactId>
-            <version>2.17.0</version>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ecs</artifactId>
+            <version>2.28.6</version>
         </dependency>
-
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>url-connection-client</artifactId>
+            <version>2.28.6</version>
+        </dependency>
 
         <!-- resteasy client -->
         <dependency>
@@ -70,6 +74,12 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-reactive-mysql-client</artifactId>
+        </dependency>
+
+        <!-- for fault-tolerance -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
         </dependency>
 
         <!-- for quartz -->

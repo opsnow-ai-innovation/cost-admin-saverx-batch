@@ -9,14 +9,18 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-@Path("/ai-saverx-engine")
+@Path("/")
 @RegisterRestClient(configKey = "engine-start-api")
 @RegisterClientHeaders
 public interface EngineStartService {
 
     @GET
-    @Path("/trigger")
+    @Path("/ai-saverx-engine/trigger")
     @Produces(MediaType.APPLICATION_JSON)
     Uni<Response> getTrigger();
+    @GET
+    @Path("/health")
+    @Produces(MediaType.APPLICATION_JSON)
+    Uni<Response> getHealth();
 
 }
