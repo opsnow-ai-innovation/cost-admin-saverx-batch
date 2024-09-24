@@ -94,14 +94,14 @@ public class DashboardService {
         accountInfo.setFixYn(payer.getFixYn());
         accountInfo.setLastCollectionDay(accountSummary.getLastUseDate());
 
-        if(accountSummary.getLatest() != null && accountSummary.getLatest().getUtilization() != null) {
+        if (accountSummary.getLatest() != null && accountSummary.getLatest().getUtilization() != null) {
             accountInfo.setLatestUtilPercent(accountSummary.getLatest().getUtilization().getTotalUtilization());
-        }else{
+        } else {
             accountInfo.setLatestUtilPercent(0.0);
         }
-        if(accountSummary.getLatest() != null && accountSummary.getLatest().getCoverage() != null) {
+        if (accountSummary.getLatest() != null && accountSummary.getLatest().getCoverage() != null) {
             accountInfo.setLatestCovPercent(accountSummary.getLatest().getCoverage().getTotalCoverage());
-        }else{
+        } else {
             accountInfo.setLatestCovPercent(0.0);
         }
 
@@ -131,7 +131,7 @@ public class DashboardService {
                     try {
 
                         Log.infof("Received response for payer %s: %s", accountInfo.getPayerId(), item.toString());
-                        if(item.getData().get("p1").getUtilization() == null || item.getData().get("p1").getCoverage() == null) {
+                        if (item.getData().get("p1").getUtilization() == null || item.getData().get("p1").getCoverage() == null) {
                             Log.errorf("Missing data for payer %s: %s", accountInfo.getPayerId(), item.toString());
                             return accountInfo;
                         }

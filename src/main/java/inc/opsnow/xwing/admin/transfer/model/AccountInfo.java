@@ -2,7 +2,6 @@ package inc.opsnow.xwing.admin.transfer.model;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @RegisterForReflection

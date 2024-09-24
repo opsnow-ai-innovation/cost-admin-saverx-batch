@@ -47,3 +47,4 @@ logs/
 /src/main/resources/init-local.properties
 
 /src/main/java/inc/opsnow/xwing/admin/tester/*
+/src/main/resources/init.properties
