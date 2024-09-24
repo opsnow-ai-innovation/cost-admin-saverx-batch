@@ -63,11 +63,10 @@ public class TransferBatch {
     @Retry(maxRetries = MAX_RETRIES, delay = 30000, retryOn = Exception.class)
     Uni<Void> startTransferBatch() {
         return Uni.createFrom().item(() -> {
-                    // 여기에 기존 로직을 넣습니다.
                     return startAdmEngine()
-                            .onItem().transformToUni(v -> waitForHealthyEngine())
-                            .onItem().transformToUni(v -> processDashboardAndTrigger())
-                            .onItem().transformToUni(v -> stopAdmEngine());
+                            .chain(v -> waitForHealthyEngine())
+                            .chain(v -> processDashboardAndTrigger())
+                            .chain(v -> stopAdmEngine());
                 })
                 .onFailure().invoke(e -> {
                     Log.errorf("Error in startTransferBatch: %s. Retrying...", e.getMessage());
