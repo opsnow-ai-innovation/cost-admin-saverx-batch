@@ -132,6 +132,10 @@ public class TransferBatch {
     private Uni<Void> tryGetAccountInfoCommitCount(String siteId, Integer expectedCount) {
         return dashboardService.getAccountInfoCommitCount(siteId)
                 .chain(count -> {
+                    Log.infof("AccountInfo commit count: %d, expected: %d", count, expectedCount);
+                    Log.infof("count class name: %s", count.getClass().getName());
+                    Log.infof("expectedCount class name: %s", expectedCount.getClass().getName());
+
                     if (Objects.equals(count, expectedCount)) {
                         Log.infof("AccountInfo commit count matched: %d", count);
                         return Uni.createFrom().voidItem(); // count가 일치하면 성공 처리
