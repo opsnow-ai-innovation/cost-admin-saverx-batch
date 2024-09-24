@@ -55,7 +55,14 @@ public class TransferBatch {
                 .onItem().invoke(() -> Log.info("TransferBatch schedule completed successfully"))
                 .onFailure().invoke(error -> Log.error("TransferBatch schedule failed", error))
                 .subscribe().with(
-                        item -> {}, // 성공 시 추가 작업이 필요 없으면 빈 람다
+                        item -> {
+                            processDashboardAndTrigger()
+                                    .chain(v -> stopAdmEngine())
+                                    .subscribe().with(
+                                            res -> Log.info("TransferBatch processDashboardAndTrigger completed successfully"),
+                                            error -> Log.error("TransferBatch processDashboardAndTrigger failed", error)
+                                    );
+                        }, // 성공 시 추가 작업이 필요 없으면 빈 람다
                         error -> {} // 실패 시 추가 작업이 필요 없으면 빈 람다
                 );
     }
@@ -64,9 +71,7 @@ public class TransferBatch {
     Uni<Void> startTransferBatch() {
         return Uni.createFrom().item(() -> {
                     return startAdmEngine()
-                            .chain(v -> waitForHealthyEngine())
-                            .chain(v -> processDashboardAndTrigger())
-                            .chain(v -> stopAdmEngine());
+                            .chain(v -> waitForHealthyEngine());
                 })
                 .onFailure().invoke(e -> {
                     Log.errorf("Error in startTransferBatch: %s. Retrying...", e.getMessage());
