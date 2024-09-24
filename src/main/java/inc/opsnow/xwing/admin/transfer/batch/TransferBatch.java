@@ -66,12 +66,12 @@ public class TransferBatch {
     @Retry(maxRetries = MAX_RETRIES, delay = 30000, retryOn = Exception.class)
     Uni<Void> startTransferBatch() {
         return startAdmEngine()
-                .onItem().delayIt().by(INITIAL_WAIT) // startAdmEngine 후 1분 대기
+                .onItem().delayIt().by(INITIAL_WAIT) // startAdmEngine 후 2분 대기
                 .chain(v -> waitForHealthyEngine()) // 엔진 상태 체크
                 .onItem().delayIt().by(POST_WAIT) // 정상 확인 후 10초 대기
                 .chain(v -> processDashboardAndTrigger()) // 대시보드 처리 및 트리거 호출
-                .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
-                .chain(expectedCount -> getAccountInfoCommitCount(siteId, expectedCount)) // 엔진 중지
+                .onItem().delayIt().by(INITIAL_WAIT) // 2분 대기
+                .chain(expectedCount -> getAccountInfoCommitCount(siteId, expectedCount)) // 매 30초마다 50분간 commit count==expectedCount 체크
                 .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
                 .chain(v -> stopAdmEngine()) // 엔진 중지
                 .onFailure().invoke(e -> {
