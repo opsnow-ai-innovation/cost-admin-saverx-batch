@@ -73,8 +73,8 @@ public class DashboardRepository extends RepositoryBase {
 
         for (TransferAccountStatus status : statusList) {
             if ("LOCK".equals(status.getResult())) {
-                lockedPayerIds.add(status.getSendPayerId());
-                lockedPayerIds.add(status.getRecvPayerId());
+                lockedPayerIds.add("'"+status.getSendPayerId()+"'");
+                lockedPayerIds.add("'"+status.getRecvPayerId()+"'");
             }
         }
         return String.join(",", lockedPayerIds);
@@ -100,7 +100,7 @@ public class DashboardRepository extends RepositoryBase {
 
         return payerIdNullStatus.entrySet().stream()
                 .filter(Map.Entry::getValue)
-                .map(Map.Entry::getKey)
+                .map(entry -> "'" + entry.getKey() + "'")
                 .collect(Collectors.joining(","));
     }
 
@@ -110,7 +110,7 @@ public class DashboardRepository extends RepositoryBase {
 
         for (TransferAccountStatus status : statusList) {
             if (!"LOCK".equals(status.getResult())) {
-                LinkedIds.add(status.getLnkdAccId());
+                LinkedIds.add("'"+status.getLnkdAccId()+"'");
             }
         }
         return String.join(",", LinkedIds);
