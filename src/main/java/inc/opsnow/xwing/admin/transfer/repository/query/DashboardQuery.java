@@ -54,7 +54,7 @@ public class DashboardQuery {
 //    1) x_transfer 테이블에서 이동한 어카운트에 대해 수집된 데이터가 있는지 확인
 //    2) 수집되지 않으면 x_account_info의 status = 'LOCK' 으로 업데이트
 //       수집되었으면 유지, 변경 없음 (status = 'COMMIT')
-//    3) status = 'LOCK' 이 아니면 x_transfer/x_transfer_account 테이블의 CURRENT_STATE를 Completed 로 업데이트 한다.
+//    3) status = 'LOCK' 이 아니면 x_transfer 테이블의 CURRENT_STATE를 Completed 로 업데이트 한다.
 
 
     //    1) x_transfer 테이블에서 이동한 어카운트에 대해 수집된 데이터가 있는지 확인 (SEND_PAYER_ID, RECV_PAYER_ID, LNKD_ACC_ID, RESULT)

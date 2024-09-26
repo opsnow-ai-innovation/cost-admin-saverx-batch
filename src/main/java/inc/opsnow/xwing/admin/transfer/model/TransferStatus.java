@@ -4,7 +4,7 @@ import inc.opsnow.xwing.admin.common.repository.Column;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
-public class TransferAccountStatus {
+public class TransferStatus {
 
     @Column("SEND_PAYER_ID")
     String sendPayerId;
@@ -49,7 +49,7 @@ public class TransferAccountStatus {
 
     @Override
     public String toString() {
-        return "TransferAccountStatus{" +
+        return "TransferStatus{" +
                 "sendPayerId='" + sendPayerId + '\'' +
                 ", recvPayerId='" + recvPayerId + '\'' +
                 ", lnkdAccId='" + lnkdAccId + '\'' +
