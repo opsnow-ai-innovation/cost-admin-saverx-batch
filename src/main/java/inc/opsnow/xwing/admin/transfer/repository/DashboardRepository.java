@@ -57,22 +57,13 @@ public class DashboardRepository extends RepositoryBase {
         return save(connection, DashboardQuery.UPDATE_ACCOUNT_INFO_STATUS_LOCK.replaceAll("%LOCK_PAYER_IDS%",lockedPayerIds), Tuple.of(siteId));
     }
 
-    // UPDATE_X_TRANSFER
-    public Uni<Integer> updateTransfer(SqlConnection connection, String siteId, List<TransferAccountStatus> txAccountStatusList) {   //UPDATE_X_TRANSFER
-        String completedIds = getAllNullPayerIds(txAccountStatusList);
-        if(completedIds.isEmpty()) {
-            return Uni.createFrom().nullItem();
-        }
-        return save(connection, DashboardQuery.UPDATE_TRANSFER_STATUS_COMPLETED.replaceAll("%COMPLETED_PAYER_IDS%",completedIds), Tuple.of(siteId));
-    }
-
     // UPDATE_X_TRANSFER_ACCOUNT
     public Uni<Integer> updateTransferAccount(SqlConnection connection, String siteId, List<TransferAccountStatus> txAccountStatusList) {   //UPDATE_X_TRANSFER_ACCOUNT
         String linkedIds = getUnLockedLinkedIds(txAccountStatusList);
         if(linkedIds.isEmpty()) {
             return Uni.createFrom().nullItem();
         }
-        return save(connection, DashboardQuery.UPDATE_TRANSFER_ACCOUNT_STATUS_COMPLETED.replaceAll("%COMPLETED_LNKD_ACC_IDS%",linkedIds), Tuple.of(siteId));
+        return save(connection, DashboardQuery.UPDATE_TRANSFER_STATUS_COMPLETED.replaceAll("%COMPLETED_LNKD_ACC_IDS%",linkedIds), Tuple.of(siteId));
     }
     // --> transaction
 
@@ -87,30 +78,6 @@ public class DashboardRepository extends RepositoryBase {
             }
         }
         return String.join(",", lockedPayerIds);
-    }
-
-    // 어카운트 이동이 완료된 PAYER_ID를 콤마로 구분하여 반환
-    private String getAllNullPayerIds(List<TransferAccountStatus> statusList) {
-        Map<String, Boolean> payerIdNullStatus = new HashMap<>();
-
-        for (TransferAccountStatus status : statusList) {
-            String sendPayerId = status.getSendPayerId();
-            String recvPayerId = status.getRecvPayerId();
-            String result = status.getResult();
-
-            if (result == null) {
-                payerIdNullStatus.putIfAbsent(sendPayerId, true);
-                payerIdNullStatus.putIfAbsent(recvPayerId, true);
-            } else {
-                payerIdNullStatus.put(sendPayerId, false);
-                payerIdNullStatus.put(recvPayerId, false);
-            }
-        }
-
-        return payerIdNullStatus.entrySet().stream()
-                .filter(Map.Entry::getValue)
-                .map(entry -> "'" + entry.getKey() + "'")
-                .collect(Collectors.joining(","));
     }
 
     // %COMPLETED_LNKD_ACC_IDS%

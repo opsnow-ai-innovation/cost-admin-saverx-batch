@@ -59,29 +59,23 @@ public class DashboardQuery {
 
     //    1) x_transfer 테이블에서 이동한 어카운트에 대해 수집된 데이터가 있는지 확인 (SEND_PAYER_ID, RECV_PAYER_ID, LNKD_ACC_ID, RESULT)
     public final static String GET_TRANSFER_ACCOUNT_STATUS = """
-        SELECT
-            t.SEND_PAYER_ID,
-            t.RECV_PAYER_ID,
-            xta.LNKD_ACC_ID,
-            CASE
-                WHEN COUNT(DISTINCT CASE
-                                        WHEN t.CURRENT_STATE = 'Transferred'
-                                            AND t.LAST_MODIFIED_DATE < STR_TO_DATE(u.USE_DT, '%Y%m%d')
-                                            THEN xta.LNKD_ACC_ID
-                    END) = 0 THEN 'LOCK'
-                ELSE NULL
-                END AS RESULT
-        FROM
-            cmp_admin.x_transfer t
-                JOIN
-            cmp_admin.x_transfer_account xta ON t.TRANSFER_ID = xta.TRANSFER_ID
-                LEFT JOIN
-            bill.%PFX%_tbil_sp_utl_l u ON (t.SEND_PAYER_ID = u.PAYR_ACC_ID OR t.RECV_PAYER_ID = u.PAYR_ACC_ID)
-                AND xta.LNKD_ACC_ID = u.LNKD_ACC_ID
-        WHERE
-            t.SITE_ID = ?
-        GROUP BY
-            t.SEND_PAYER_ID, t.RECV_PAYER_ID, xta.LNKD_ACC_ID
+        SELECT t.SEND_PAYER_ID,
+               t.RECV_PAYER_ID,
+               t.LNKD_ACC_ID,
+               CASE
+                   WHEN COUNT(DISTINCT CASE
+                                           WHEN t.CURRENT_STATE = 'Transferred'
+                                               AND t.LAST_MODIFIED_DATE < STR_TO_DATE(u.USE_DT, '%Y%m%d')
+                                               THEN t.LNKD_ACC_ID
+                       END) = 0 THEN 'LOCK'
+                   ELSE NULL
+                   END AS RESULT
+        FROM cmp_admin_dev.x_transfer t
+                 LEFT JOIN
+             bill_new.%PFX%_tbil_sp_utl_l u ON (t.SEND_PAYER_ID = u.PAYR_ACC_ID OR t.RECV_PAYER_ID = u.PAYR_ACC_ID)
+                 AND t.LNKD_ACC_ID = u.LNKD_ACC_ID
+        WHERE t.SITE_ID = ?
+        GROUP BY t.SEND_PAYER_ID, t.RECV_PAYER_ID, t.LNKD_ACC_ID
         """;
 
     //    2) 수집되지 않으면 x_account_info의 status = 'LOCK' 으로 업데이트
@@ -94,20 +88,11 @@ public class DashboardQuery {
         AND STATUS = 'COMMIT'
         """;
 
-    //    3) status = 'LOCK' 이 아니면 x_transfer/x_transfer_account 테이블의 CURRENT_STATE를 Completed 로 업데이트 한다.
+    //    3) status = 'LOCK' 이 아니면 x_transfer 테이블의 CURRENT_STATE를 Completed 로 업데이트 한다.
     // %PAYER_IDS% : 1)에서 result가 'LOCK'이 아닌 PAYR_ACC_ID 중 SEND_PAYER_ID, RECV_PAYER_ID 를 모두 만족하면... (AND 조건) CURRENT_STATE를 Completed 로 업데이트 한다.
 
-    //UPDATE_TRANSFER_STATUS_COMPLETED
     public final static String UPDATE_TRANSFER_STATUS_COMPLETED = """
         UPDATE cmp_admin.x_transfer
-        SET CURRENT_STATE = 'Completed'
-        WHERE SITE_ID = ?
-        AND (SEND_PAYER_ID in (%COMPLETED_PAYER_IDS%)
-        OR RECV_PAYER_ID in (%COMPLETED_PAYER_IDS%))
-        """;
-
-    public final static String UPDATE_TRANSFER_ACCOUNT_STATUS_COMPLETED = """
-        UPDATE cmp_admin.x_transfer_account
         SET CURRENT_STATE = 'Completed'
         WHERE SITE_ID = ?
         AND LNKD_ACC_ID in (%COMPLETED_LNKD_ACC_IDS%) 

@@ -62,7 +62,6 @@ public class DashboardService {
             return dashboardRepository.selectPfx(connection)
                     .onItem().transformToUni(pfx -> dashboardRepository.getTransferAccountStatus(connection, pfx, siteId))
                     .chain(txAccountStatusList -> dashboardRepository.updateAccountInfo(connection, siteId, txAccountStatusList)
-                            .chain(v -> dashboardRepository.updateTransfer(connection, siteId, txAccountStatusList))
                             .chain(v -> dashboardRepository.updateTransferAccount(connection, siteId, txAccountStatusList)))
                     ;
         }).replaceWithVoid();
