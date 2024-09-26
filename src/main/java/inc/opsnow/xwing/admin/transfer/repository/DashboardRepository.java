@@ -51,18 +51,27 @@ public class DashboardRepository extends RepositoryBase {
     // UPDATE_X_ACCOUNT_INFO
     public Uni<Integer> updateAccountInfo(SqlConnection connection, String siteId, List<TransferAccountStatus> txAccountStatusList) {   //UPDATE_X_ACCOUNT_INFO
         String lockedPayerIds = getLockedPayerIds(txAccountStatusList);
+        if(lockedPayerIds.isEmpty()) {
+            return Uni.createFrom().nullItem();
+        }
         return save(connection, DashboardQuery.UPDATE_ACCOUNT_INFO_STATUS_LOCK.replaceAll("%LOCK_PAYER_IDS%",lockedPayerIds), Tuple.of(siteId));
     }
 
     // UPDATE_X_TRANSFER
     public Uni<Integer> updateTransfer(SqlConnection connection, String siteId, List<TransferAccountStatus> txAccountStatusList) {   //UPDATE_X_TRANSFER
         String completedIds = getAllNullPayerIds(txAccountStatusList);
+        if(completedIds.isEmpty()) {
+            return Uni.createFrom().nullItem();
+        }
         return save(connection, DashboardQuery.UPDATE_TRANSFER_STATUS_COMPLETED.replaceAll("%COMPLETED_PAYER_IDS%",completedIds), Tuple.of(siteId));
     }
 
     // UPDATE_X_TRANSFER_ACCOUNT
     public Uni<Integer> updateTransferAccount(SqlConnection connection, String siteId, List<TransferAccountStatus> txAccountStatusList) {   //UPDATE_X_TRANSFER_ACCOUNT
         String linkedIds = getUnLockedLinkedIds(txAccountStatusList);
+        if(linkedIds.isEmpty()) {
+            return Uni.createFrom().nullItem();
+        }
         return save(connection, DashboardQuery.UPDATE_TRANSFER_ACCOUNT_STATUS_COMPLETED.replaceAll("%COMPLETED_LNKD_ACC_IDS%",linkedIds), Tuple.of(siteId));
     }
     // --> transaction
