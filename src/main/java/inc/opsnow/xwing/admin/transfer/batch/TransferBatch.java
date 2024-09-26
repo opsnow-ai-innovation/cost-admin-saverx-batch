@@ -74,6 +74,8 @@ public class TransferBatch {
                 .chain(expectedCount -> getAccountInfoCommitCount(siteId, expectedCount)) // 매 30초마다 50분간 commit count==expectedCount 체크
                 .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
                 .chain(v -> stopAdmEngine()) // 엔진 중지
+                .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
+                .chain(v -> dashboardService.updateStatus(siteId)) // 상태 업데이트
                 .onFailure().invoke(e -> {
                     Log.errorf("Error in startTransferBatch: %s. Retrying...", e.getMessage());
                 });

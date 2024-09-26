@@ -40,8 +40,77 @@ public class DashboardQuery {
                     NOW(), NOW())
             """;
 
-    // select count(0) cnt from cmp_admin.x_account_info where SITE_ID='OPSNOW' and STATUS='COMMIT'
+    // 커밋 상태인 데이터만 조회하여 대상과 갯수 비교 -> 일치하면 Engine ECS 종료
     public final static String GET_ACCOUNT_INFO_COMMIT_COUNT = """
             select count(0) cnt from cmp_admin.x_account_info where SITE_ID=? and STATUS='COMMIT'
             """;
+
+    // select PFX from bill_new.tbil_pfx_h;
+    public final static String SELECT_PFX = """
+            select PFX from bill_new.tbil_pfx_h
+            """;
+// TODO
+//    후처리 : 어카운트가 이동 후 정상적으로 수집을 시작하였는지 확인
+//    1) x_transfer 테이블에서 이동한 어카운트에 대해 수집된 데이터가 있는지 확인
+//    2) 수집되지 않으면 x_account_info의 status = 'LOCK' 으로 업데이트
+//       수집되었으면 유지, 변경 없음 (status = 'COMMIT')
+//    3) status = 'LOCK' 이 아니면 x_transfer/x_transfer_account 테이블의 CURRENT_STATE를 Completed 로 업데이트 한다.
+
+
+    //    1) x_transfer 테이블에서 이동한 어카운트에 대해 수집된 데이터가 있는지 확인 (SEND_PAYER_ID, RECV_PAYER_ID, LNKD_ACC_ID, RESULT)
+    public final static String GET_TRANSFER_ACCOUNT_STATUS = """
+        SELECT
+            t.SEND_PAYER_ID,
+            t.RECV_PAYER_ID,
+            xta.LNKD_ACC_ID,
+            CASE
+                WHEN COUNT(DISTINCT CASE
+                                        WHEN t.CURRENT_STATE = 'Transferred'
+                                            AND t.LAST_MODIFIED_DATE < STR_TO_DATE(u.USE_DT, '%Y%m%d')
+                                            THEN xta.LNKD_ACC_ID
+                    END) = 0 THEN 'LOCK'
+                ELSE NULL
+                END AS RESULT
+        FROM
+            cmp_admin.x_transfer t
+                JOIN
+            cmp_admin.x_transfer_account xta ON t.TRANSFER_ID = xta.TRANSFER_ID
+                LEFT JOIN
+            bill.%PFX%_tbil_sp_utl_l u ON (t.SEND_PAYER_ID = u.PAYR_ACC_ID OR t.RECV_PAYER_ID = u.PAYR_ACC_ID)
+                AND xta.LNKD_ACC_ID = u.LNKD_ACC_ID
+        WHERE
+            t.SITE_ID = ?
+        GROUP BY
+            t.SEND_PAYER_ID, t.RECV_PAYER_ID, xta.LNKD_ACC_ID
+        """;
+
+    //    2) 수집되지 않으면 x_account_info의 status = 'LOCK' 으로 업데이트
+    // %LOCK_PAYER_IDS% : 1)에서 result가 'LOCK'인 PAYR_ACC_ID -> 동일 페이어에 대해 LOCK 이 하나라도 있으면 LOCK 처리
+    public final static String UPDATE_ACCOUNT_INFO_STATUS_LOCK = """
+        UPDATE cmp_admin.x_account_info
+        SET STATUS = 'LOCK'
+        WHERE SITE_ID = ?
+        AND PAYER_ID IN (%LOCK_PAYER_IDS%)
+        AND STATUS = 'COMMIT'
+        """;
+
+    //    3) status = 'LOCK' 이 아니면 x_transfer/x_transfer_account 테이블의 CURRENT_STATE를 Completed 로 업데이트 한다.
+    // %PAYER_IDS% : 1)에서 result가 'LOCK'이 아닌 PAYR_ACC_ID 중 SEND_PAYER_ID, RECV_PAYER_ID 를 모두 만족하면... (AND 조건) CURRENT_STATE를 Completed 로 업데이트 한다.
+
+    //UPDATE_TRANSFER_STATUS_COMPLETED
+    public final static String UPDATE_TRANSFER_STATUS_COMPLETED = """
+        UPDATE cmp_admin.x_transfer
+        SET CURRENT_STATE = 'Completed'
+        WHERE SITE_ID = ?
+        AND (SEND_PAYER_ID in (%COMPLETED_PAYER_IDS%)
+        OR RECV_PAYER_ID in (%COMPLETED_PAYER_IDS%))
+        """;
+
+    public final static String UPDATE_TRANSFER_ACCOUNT_STATUS_COMPLETED = """
+        UPDATE cmp_admin.x_transfer_account
+        SET CURRENT_STATE = 'Completed'
+        WHERE SITE_ID = ?
+        AND LNKD_ACC_ID in (%COMPLETED_LNKD_ACC_IDS%) 
+        """;
+
 }

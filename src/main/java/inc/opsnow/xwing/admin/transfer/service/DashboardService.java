@@ -10,6 +10,7 @@ import io.quarkus.reactive.datasource.ReactiveDataSource;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
+import io.vertx.sqlclient.TransactionPropagation;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -50,10 +51,22 @@ public class DashboardService {
                 .invoke(() -> Log.info("Finished saving account info"))
                 ;
     }
+
     public Uni<Integer> getAccountInfoCommitCount(String siteId) {
         return dashboardRepository.getAccountInfoCommitCount(billPool, siteId);
     }
 
+
+    public Uni<Void> updateStatus(String siteId) {
+        return billPool.withTransaction(TransactionPropagation.CONTEXT, connection -> {
+            return dashboardRepository.selectPfx(connection)
+                    .onItem().transformToUni(pfx -> dashboardRepository.getTransferAccountStatus(connection, pfx, siteId))
+                    .chain(txAccountStatusList -> dashboardRepository.updateAccountInfo(connection, siteId, txAccountStatusList)
+                            .chain(v -> dashboardRepository.updateTransfer(connection, siteId, txAccountStatusList))
+                            .chain(v -> dashboardRepository.updateTransferAccount(connection, siteId, txAccountStatusList)))
+                    ;
+        }).replaceWithVoid();
+    }
 
     private Uni<List<AwsSitePayer>> getPayer(String siteId) {
         return dashboardRepository.getPayer(billPool, siteId);
