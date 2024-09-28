@@ -48,7 +48,7 @@ public class DecryptedConfigSource implements ConfigSource {
     private Optional<String> loadAESKey() {
         try {
             String token = new String(Files.readAllBytes(Paths.get(System.getProperty("user.home"), ".aeskey.properties"))).replace("\n", "");
-            Log.info("token: " + token);
+//            Log.info("token: " + token);
             return Optional.of(token);
         } catch (IOException e) {
             Log.error("Error loading .aeskey.properties", e);
@@ -90,9 +90,9 @@ public class DecryptedConfigSource implements ConfigSource {
             }
 
             // 로그 출력
-            Log.info("quarkus.datasource.billnew.reactive.url=" + properties.get("quarkus.datasource.billnew.reactive.url"));
-            Log.info("quarkus.datasource.billnew.username=" + properties.get("quarkus.datasource.billnew.username"));
-            Log.info("quarkus.datasource.billnew.password=" + properties.get("quarkus.datasource.billnew.password"));
+//            Log.info("quarkus.datasource.billnew.reactive.url=" + properties.get("quarkus.datasource.billnew.reactive.url"));
+//            Log.info("quarkus.datasource.billnew.username=" + properties.get("quarkus.datasource.billnew.username"));
+//            Log.info("quarkus.datasource.billnew.password=" + properties.get("quarkus.datasource.billnew.password"));
 
         } catch (Exception e) {
             Log.error("Error loading init.properties", e);
