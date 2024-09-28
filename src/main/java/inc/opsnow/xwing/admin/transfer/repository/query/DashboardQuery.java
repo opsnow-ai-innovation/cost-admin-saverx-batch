@@ -4,19 +4,19 @@ public class DashboardQuery {
 
     // x-wing만 대상으로 한정함
     public final static String GET_PAYER = """
-            select s.SITE_ID,
-                   s.PAYR_ACC_ID,
-                   l.ALIAS,
-                   t.TARGET_COV,
-                   t.FIX_YN
-            from bill.tbil_cmpn_sbsc_svc_acc_l s
-                     join bill.tbil_aws_ak_l l on s.PAYR_ACC_ID = l.PAYR_ACC_ID and s.SITE_ID = l.SITE_ID and l.PAYR_YN = 'Y'
-                     join cmp_admin.x_setting_target t on s.SITE_ID = t.SITE_ID and s.PAYR_ACC_ID = t.PAYER_ID
-            where s.ACC_TYPE = 'PAYER'
-              and s.SVC_CD = 'AUTO-SP'
-              and s.STAT = 'SUBSCRIBED'
-              and s.SITE_ID = ?
-            """;
+        select s.SITE_ID,
+               s.PAYR_ACC_ID,
+               l.ALIAS,
+               COALESCE(t.TARGET_COV, 100) as TARGET_COV, 
+               COALESCE(t.FIX_YN, 'N') as FIX_YN 
+        from bill.tbil_cmpn_sbsc_svc_acc_l s
+                 join bill.tbil_aws_ak_l l on s.PAYR_ACC_ID = l.PAYR_ACC_ID and s.SITE_ID = l.SITE_ID and l.PAYR_YN = 'Y'
+                 left join cmp_admin.x_setting_target t on s.SITE_ID = t.SITE_ID and s.PAYR_ACC_ID = t.PAYER_ID
+        where s.ACC_TYPE = 'PAYER'
+          and s.SVC_CD = 'AUTO-SP'
+          and s.STAT = 'SUBSCRIBED'
+          and s.SITE_ID =  ?
+        """;
 
     // 먼저 테이블 삭제
     public final static String DELETE_ACCOUNT_INFO_RESULT = """
