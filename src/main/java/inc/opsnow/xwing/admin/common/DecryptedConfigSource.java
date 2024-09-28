@@ -90,9 +90,9 @@ public class DecryptedConfigSource implements ConfigSource {
             }
 
             // 로그 출력
-//            Log.info("quarkus.datasource.billnew.reactive.url=" + properties.get("quarkus.datasource.billnew.reactive.url"));
-//            Log.info("quarkus.datasource.billnew.username=" + properties.get("quarkus.datasource.billnew.username"));
-//            Log.info("quarkus.datasource.billnew.password=" + properties.get("quarkus.datasource.billnew.password"));
+            Log.info("quarkus.datasource.billnew.reactive.url=" + properties.get("quarkus.datasource.billnew.reactive.url"));
+            Log.info("quarkus.datasource.billnew.username=" + properties.get("quarkus.datasource.billnew.username"));
+            Log.info("quarkus.datasource.billnew.password=" + properties.get("quarkus.datasource.billnew.password"));
 
         } catch (Exception e) {
             Log.error("Error loading init.properties", e);
