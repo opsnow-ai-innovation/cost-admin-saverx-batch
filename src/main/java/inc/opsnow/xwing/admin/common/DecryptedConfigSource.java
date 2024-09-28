@@ -48,6 +48,7 @@ public class DecryptedConfigSource implements ConfigSource {
     private Optional<String> loadAESKey() {
         try {
             String token = new String(Files.readAllBytes(Paths.get(System.getProperty("user.home"), ".aeskey.properties"))).replace("\n", "");
+            Log.info("token: " + token);
             return Optional.of(token);
         } catch (IOException e) {
             Log.error("Error loading .aeskey.properties", e);
