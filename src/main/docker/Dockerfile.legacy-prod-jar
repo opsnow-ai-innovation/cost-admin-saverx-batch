@@ -6,7 +6,8 @@ ENV LANGUAGE='en_US:en'
 COPY target/lib/* /deployments/lib/
 COPY target/*-runner.jar /deployments/quarkus-run.jar
 #added
-COPY target/init-prod.properties /home/jboss/init.properties
+COPY target/init-prod.properties /home/jboss/init-prod.properties
+COPY target/profile /home/jboss/profile
 COPY target/.aeskey.properties /home/jboss/.aeskey.properties
 
 
