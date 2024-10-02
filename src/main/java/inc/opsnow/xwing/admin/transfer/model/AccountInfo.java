@@ -9,9 +9,9 @@ public class AccountInfo {
 
     private Long id;
     private String payerName;
+    private String siteId;
     private String cmpnId;
     private String cmpnNm;
-    private String siteId;
     private String payerId;
     private Double targetCov;
     private String fixYn;
@@ -194,9 +194,9 @@ public class AccountInfo {
         return "AccountInfo{" +
                 "id=" + id +
                 ", payerName='" + payerName + '\'' +
+                ", siteId='" + siteId + '\'' +
                 ", cmpnId='" + cmpnId + '\'' +
                 ", cmpnNm='" + cmpnNm + '\'' +
-                ", siteId='" + siteId + '\'' +
                 ", payerId='" + payerId + '\'' +
                 ", targetCov=" + targetCov +
                 ", fixYn='" + fixYn + '\'' +
