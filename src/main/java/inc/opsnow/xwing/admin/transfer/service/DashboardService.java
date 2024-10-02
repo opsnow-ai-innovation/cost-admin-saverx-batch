@@ -103,6 +103,8 @@ public class DashboardService {
 
         AccountInfo accountInfo = new AccountInfo();
         accountInfo.setPayerName(payer.getAlias());
+        accountInfo.setCmpnId(payer.getCmpnId());
+        accountInfo.setCmpnNm(payer.getCmpnNm());
         accountInfo.setSiteId(accountSummary.getSiteCode());
         accountInfo.setPayerId(accountSummary.getPayerAccountId());
         accountInfo.setTargetCov(payer.getTargetCov());
