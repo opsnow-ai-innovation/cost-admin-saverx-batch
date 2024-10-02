@@ -7,6 +7,10 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 public class AwsSitePayer {
     @Column("SITE_ID")
     String siteId;
+    @Column("CMPN_ID")
+    String cmpnId;
+    @Column("CMPN_NM")
+    String cmpnNm;
     @Column("PAYR_ACC_ID")
     String payerAccId;
     @Column("ALIAS")
@@ -22,6 +26,22 @@ public class AwsSitePayer {
 
     public void setSiteId(String siteId) {
         this.siteId = siteId;
+    }
+
+    public String getCmpnId() {
+        return cmpnId;
+    }
+
+    public void setCmpnId(String cmpnId) {
+        this.cmpnId = cmpnId;
+    }
+
+    public String getCmpnNm() {
+        return cmpnNm;
+    }
+
+    public void setCmpnNm(String cmpnNm) {
+        this.cmpnNm = cmpnNm;
     }
 
     public String getPayerAccId() {
@@ -60,6 +80,8 @@ public class AwsSitePayer {
     public String toString() {
         return "AwsSitePayer{" +
                 "siteId='" + siteId + '\'' +
+                ", cmpnId='" + cmpnId + '\'' +
+                ", cmpnNm='" + cmpnNm + '\'' +
                 ", payerAccId='" + payerAccId + '\'' +
                 ", alias='" + alias + '\'' +
                 ", targetCov=" + targetCov +
