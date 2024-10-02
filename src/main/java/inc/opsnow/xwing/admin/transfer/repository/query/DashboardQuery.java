@@ -70,7 +70,7 @@ public class DashboardQuery {
                        END) = 0 THEN 'LOCK'
                    ELSE NULL
                    END AS RESULT
-        FROM cmp_admin_dev.x_transfer t
+        FROM cmp_admin.x_transfer t
                  LEFT JOIN
              bill.%PFX%_tbil_sp_utl_l u ON (t.SEND_PAYER_ID = u.PAYR_ACC_ID OR t.RECV_PAYER_ID = u.PAYR_ACC_ID)
                  AND t.LNKD_ACC_ID = u.LNKD_ACC_ID
