@@ -9,6 +9,8 @@ public class AccountInfo {
 
     private Long id;
     private String payerName;
+    private String cmpnId;
+    private String cmpnNm;
     private String siteId;
     private String payerId;
     private Double targetCov;
@@ -41,6 +43,22 @@ public class AccountInfo {
 
     public void setPayerName(String payerName) {
         this.payerName = payerName;
+    }
+
+    public String getCmpnId() {
+        return cmpnId;
+    }
+
+    public void setCmpnId(String cmpnId) {
+        this.cmpnId = cmpnId;
+    }
+
+    public String getCmpnNm() {
+        return cmpnNm;
+    }
+
+    public void setCmpnNm(String cmpnNm) {
+        this.cmpnNm = cmpnNm;
     }
 
     public String getSiteId() {
@@ -176,6 +194,8 @@ public class AccountInfo {
         return "AccountInfo{" +
                 "id=" + id +
                 ", payerName='" + payerName + '\'' +
+                ", cmpnId='" + cmpnId + '\'' +
+                ", cmpnNm='" + cmpnNm + '\'' +
                 ", siteId='" + siteId + '\'' +
                 ", payerId='" + payerId + '\'' +
                 ", targetCov=" + targetCov +
