@@ -47,7 +47,7 @@ public class DashboardQuery {
 
     // select PFX from bill_new.tbil_pfx_h;
     public final static String SELECT_PFX = """
-            select PFX from bill_new.tbil_pfx_h
+            select PFX from bill.tbil_pfx_h
             """;
 // TODO
 //    후처리 : 어카운트가 이동 후 정상적으로 수집을 시작하였는지 확인
@@ -72,7 +72,7 @@ public class DashboardQuery {
                    END AS RESULT
         FROM cmp_admin_dev.x_transfer t
                  LEFT JOIN
-             bill_new.%PFX%_tbil_sp_utl_l u ON (t.SEND_PAYER_ID = u.PAYR_ACC_ID OR t.RECV_PAYER_ID = u.PAYR_ACC_ID)
+             bill.%PFX%_tbil_sp_utl_l u ON (t.SEND_PAYER_ID = u.PAYR_ACC_ID OR t.RECV_PAYER_ID = u.PAYR_ACC_ID)
                  AND t.LNKD_ACC_ID = u.LNKD_ACC_ID
         WHERE t.SITE_ID = ?
         GROUP BY t.SEND_PAYER_ID, t.RECV_PAYER_ID, t.LNKD_ACC_ID
