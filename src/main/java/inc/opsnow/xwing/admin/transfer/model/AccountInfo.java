@@ -2,6 +2,8 @@ package inc.opsnow.xwing.admin.transfer.model;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @RegisterForReflection
@@ -28,6 +30,19 @@ public class AccountInfo {
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
 
+
+
+    // BigDecimal을 반환하는 함수
+    BigDecimal truncateToBigDecimal(double number, int decimalPlaces) {
+        BigDecimal bd = new BigDecimal(String.valueOf(number));
+        return bd.setScale(decimalPlaces, RoundingMode.DOWN);
+    }
+
+    // double을 반환하는 함수
+    double truncateToDouble(double number, int decimalPlaces) {
+        BigDecimal bd = new BigDecimal(String.valueOf(number));
+        return bd.setScale(decimalPlaces, RoundingMode.DOWN).doubleValue();
+    }
 
     public Long getId() {
         return id;
@@ -86,7 +101,7 @@ public class AccountInfo {
     }
 
     public Double getLatestUtilPercent() {
-        return latestUtilPercent;
+        return truncateToDouble(latestUtilPercent,5);
     }
 
     public void setLatestUtilPercent(Double latestUtilPercent) {
@@ -94,7 +109,7 @@ public class AccountInfo {
     }
 
     public Double getLatestCovPercent() {
-        return latestCovPercent;
+        return truncateToDouble(latestCovPercent,5);
     }
 
     public void setLatestCovPercent(Double latestCovPercent) {
@@ -102,7 +117,7 @@ public class AccountInfo {
     }
 
     public Double getAvgUtilPercent() {
-        return avgUtilPercent;
+        return truncateToDouble(avgUtilPercent,5);
     }
 
     public void setAvgUtilPercent(Double avgUtilPercent) {
@@ -110,7 +125,7 @@ public class AccountInfo {
     }
 
     public Double getAvgCovPercent() {
-        return avgCovPercent;
+        return truncateToDouble(avgCovPercent,5);
     }
 
     public void setAvgCovPercent(Double avgCovPercent) {
@@ -142,7 +157,7 @@ public class AccountInfo {
     }
 
     public Double getP1UtilPercent() {
-        return p1UtilPercent;
+        return truncateToDouble(p1UtilPercent,5);
     }
 
     public void setP1UtilPercent(Double p1UtilPercent) {
@@ -150,7 +165,7 @@ public class AccountInfo {
     }
 
     public Double getP1CovPercent() {
-        return p1CovPercent;
+        return truncateToDouble(p1CovPercent,5);
     }
 
     public void setP1CovPercent(Double p1CovPercent) {
@@ -158,7 +173,7 @@ public class AccountInfo {
     }
 
     public Double getP2UtilPercent() {
-        return p2UtilPercent;
+        return truncateToDouble(p2UtilPercent,5);
     }
 
     public void setP2UtilPercent(Double p2UtilPercent) {
@@ -166,7 +181,7 @@ public class AccountInfo {
     }
 
     public Double getP2CovPercent() {
-        return p2CovPercent;
+        return truncateToDouble(p2CovPercent,5);
     }
 
     public void setP2CovPercent(Double p2CovPercent) {

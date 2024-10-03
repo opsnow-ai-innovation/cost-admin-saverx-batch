@@ -43,8 +43,8 @@ public class DashboardQuery {
             values (?, ?, 
                     ?, ?,
                     ?, ?, ?,
-                    ?, TRUNCATE(?,5), TRUNCATE(?,5), TRUNCATE(?,5), TRUNCATE(?,5),
-                    TRUNCATE(?,5), TRUNCATE(?,5), TRUNCATE(?,5), TRUNCATE(?,5),
+                    ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?,
                     NOW(), NOW())
             """;
 
