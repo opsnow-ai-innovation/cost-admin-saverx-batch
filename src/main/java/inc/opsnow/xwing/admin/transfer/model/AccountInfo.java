@@ -31,6 +31,19 @@ public class AccountInfo {
     private LocalDateTime lastModifiedDate;
 
 
+
+    // BigDecimal을 반환하는 함수
+    BigDecimal truncateToBigDecimal(double number, int decimalPlaces) {
+        BigDecimal bd = new BigDecimal(String.valueOf(number));
+        return bd.setScale(decimalPlaces, RoundingMode.DOWN);
+    }
+
+    // double을 반환하는 함수
+    double truncateToDouble(double number, int decimalPlaces) {
+        BigDecimal bd = new BigDecimal(String.valueOf(number));
+        return bd.setScale(decimalPlaces, RoundingMode.DOWN).doubleValue();
+    }
+
     public Long getId() {
         return id;
     }
@@ -92,7 +105,7 @@ public class AccountInfo {
     }
 
     public void setLatestUtilPercent(Double latestUtilPercent) {
-        this.latestUtilPercent = latestUtilPercent;
+        this.latestUtilPercent = truncateToDouble(latestUtilPercent,5);
     }
 
     public Double getLatestCovPercent() {
@@ -100,7 +113,7 @@ public class AccountInfo {
     }
 
     public void setLatestCovPercent(Double latestCovPercent) {
-        this.latestCovPercent = latestCovPercent;
+        this.latestCovPercent = truncateToDouble(latestCovPercent,5);
     }
 
     public Double getAvgUtilPercent() {
@@ -108,7 +121,7 @@ public class AccountInfo {
     }
 
     public void setAvgUtilPercent(Double avgUtilPercent) {
-        this.avgUtilPercent = avgUtilPercent;
+        this.avgUtilPercent = truncateToDouble(avgUtilPercent,5);
     }
 
     public Double getAvgCovPercent() {
@@ -116,7 +129,7 @@ public class AccountInfo {
     }
 
     public void setAvgCovPercent(Double avgCovPercent) {
-        this.avgCovPercent = avgCovPercent;
+        this.avgCovPercent = truncateToDouble(avgCovPercent,5);
     }
 
     public String getFixYn() {
@@ -148,7 +161,7 @@ public class AccountInfo {
     }
 
     public void setP1UtilPercent(Double p1UtilPercent) {
-        this.p1UtilPercent = p1UtilPercent;
+        this.p1UtilPercent = truncateToDouble(p1UtilPercent,5);
     }
 
     public Double getP1CovPercent() {
@@ -156,7 +169,7 @@ public class AccountInfo {
     }
 
     public void setP1CovPercent(Double p1CovPercent) {
-        this.p1CovPercent = p1CovPercent;
+        this.p1CovPercent = truncateToDouble(p1CovPercent,5);
     }
 
     public Double getP2UtilPercent() {
@@ -164,7 +177,7 @@ public class AccountInfo {
     }
 
     public void setP2UtilPercent(Double p2UtilPercent) {
-        this.p2UtilPercent = p2UtilPercent;
+        this.p2UtilPercent = truncateToDouble(p2UtilPercent,5);
     }
 
     public Double getP2CovPercent() {
@@ -172,7 +185,7 @@ public class AccountInfo {
     }
 
     public void setP2CovPercent(Double p2CovPercent) {
-        this.p2CovPercent = p2CovPercent;
+        this.p2CovPercent = truncateToDouble(p2CovPercent,5);
     }
 
     public LocalDateTime getCreatedDate() {
