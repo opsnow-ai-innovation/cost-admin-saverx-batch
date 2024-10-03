@@ -101,35 +101,35 @@ public class AccountInfo {
     }
 
     public Double getLatestUtilPercent() {
-        return truncateToDouble(latestUtilPercent,5);
+        return latestUtilPercent;
     }
 
     public void setLatestUtilPercent(Double latestUtilPercent) {
-        this.latestUtilPercent = latestUtilPercent;
+        this.latestUtilPercent = truncateToDouble(latestUtilPercent,5);
     }
 
     public Double getLatestCovPercent() {
-        return truncateToDouble(latestCovPercent,5);
+        return latestCovPercent;
     }
 
     public void setLatestCovPercent(Double latestCovPercent) {
-        this.latestCovPercent = latestCovPercent;
+        this.latestCovPercent = truncateToDouble(latestCovPercent,5);
     }
 
     public Double getAvgUtilPercent() {
-        return truncateToDouble(avgUtilPercent,5);
+        return avgUtilPercent;
     }
 
     public void setAvgUtilPercent(Double avgUtilPercent) {
-        this.avgUtilPercent = avgUtilPercent;
+        this.avgUtilPercent = truncateToDouble(avgUtilPercent,5);
     }
 
     public Double getAvgCovPercent() {
-        return truncateToDouble(avgCovPercent,5);
+        return avgCovPercent;
     }
 
     public void setAvgCovPercent(Double avgCovPercent) {
-        this.avgCovPercent = avgCovPercent;
+        this.avgCovPercent = truncateToDouble(avgCovPercent,5);
     }
 
     public String getFixYn() {
@@ -157,35 +157,35 @@ public class AccountInfo {
     }
 
     public Double getP1UtilPercent() {
-        return truncateToDouble(p1UtilPercent,5);
+        return p1UtilPercent;
     }
 
     public void setP1UtilPercent(Double p1UtilPercent) {
-        this.p1UtilPercent = p1UtilPercent;
+        this.p1UtilPercent = truncateToDouble(p1UtilPercent,5);
     }
 
     public Double getP1CovPercent() {
-        return truncateToDouble(p1CovPercent,5);
+        return p1CovPercent;
     }
 
     public void setP1CovPercent(Double p1CovPercent) {
-        this.p1CovPercent = p1CovPercent;
+        this.p1CovPercent = truncateToDouble(p1CovPercent,5);
     }
 
     public Double getP2UtilPercent() {
-        return truncateToDouble(p2UtilPercent,5);
+        return p2UtilPercent;
     }
 
     public void setP2UtilPercent(Double p2UtilPercent) {
-        this.p2UtilPercent = p2UtilPercent;
+        this.p2UtilPercent = truncateToDouble(p2UtilPercent,5);
     }
 
     public Double getP2CovPercent() {
-        return truncateToDouble(p2CovPercent,5);
+        return p2CovPercent;
     }
 
     public void setP2CovPercent(Double p2CovPercent) {
-        this.p2CovPercent = p2CovPercent;
+        this.p2CovPercent = truncateToDouble(p2CovPercent,5);
     }
 
     public LocalDateTime getCreatedDate() {
