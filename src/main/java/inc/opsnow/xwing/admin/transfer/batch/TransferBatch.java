@@ -5,25 +5,30 @@ import inc.opsnow.xwing.admin.transfer.external.ecs.EcsService;
 import inc.opsnow.xwing.admin.transfer.service.DashboardService;
 import io.quarkus.logging.Log;
 import io.quarkus.scheduler.Scheduled;
-import io.smallrye.mutiny.unchecked.Unchecked;
-import org.eclipse.microprofile.faulttolerance.Retry;
+import io.quarkus.scheduler.ScheduledExecution;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.unchecked.Unchecked;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @ApplicationScoped
 public class TransferBatch {
 
     @ConfigProperty(name = "site_id", defaultValue = "OPSNOW")
     String siteId;
+
+    @ConfigProperty(name = "batch.schedule")
+    String batchSchedule;
 
     @Inject
     DashboardService dashboardService;
@@ -45,22 +50,65 @@ public class TransferBatch {
     private static final Duration CHECK_INTERVAL = Duration.ofSeconds(30);
     private static final Duration MAX_CHECK_DURATION = Duration.ofMinutes(50); // 최대 체크 시간 정의 (예: 50분)
 
-    @Scheduled(cron = "0 0 */3 * * ?", identity = "transfer-init-daily-job")
-    void schedule() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDateTime = now.format(formatter);
 
-        Log.infof("Daily job executed at: " + formattedDateTime);
-        Log.infof("TransferBatch schedule start");
+    private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
+
+    @Scheduled(cron = "{batch.schedule}")
+    void schedule(ScheduledExecution execution) {
+//    @Scheduled(cron = batchSchedule, identity = "transfer-init-daily-job")
+//    void schedule() {
+        if (isRunning.compareAndSet(false, true)) {
+            Log.info("Schedule start requested");
+            startTransferBatchAsync();
+        } else {
+            Log.info("TransferBatch is already running. Skipping this scheduled execution.");
+        }
+    }
+
+    private void startTransferBatchAsync() {
         startTransferBatch()
-                .onItem().invoke(() -> Log.info("TransferBatch schedule completed successfully"))
-                .onFailure().invoke(error -> Log.error("TransferBatch schedule failed", error))
                 .subscribe().with(
-                        item -> Log.info("TransferBatch completed successfully"),
-                        error -> Log.error("TransferBatch failed", error)
+                        item -> {
+                            Log.info("TransferBatch completed successfully");
+                            isRunning.set(false);
+                        },
+                        error -> {
+                            Log.error("TransferBatch failed", error);
+                            isRunning.set(false);
+                        }
                 );
+    }
+
+
+    //@Scheduled(cron = "0 0 7 * * ?", identity = "transfer-init-daily-job")
+    void schedule1() {
+        if (isRunning.compareAndSet(false, true)) {
+            Log.info("schedule start requested");
+
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String formattedDateTime = now.format(formatter);
+
+            Log.infof("Daily job executed at: " + formattedDateTime);
+            Log.infof("TransferBatch schedule start");
+
+            startTransferBatch()
+                    .onItem().invoke(() -> Log.info("TransferBatch schedule completed successfully"))
+                    .onFailure().invoke(error -> Log.error("TransferBatch schedule failed", error))
+                    .subscribe().with(
+                            item -> {
+                                Log.info("TransferBatch completed successfully");
+                                isRunning.set(false);
+                            },
+                            error -> {
+                                Log.error("TransferBatch failed", error);
+                                isRunning.set(false);
+                            }
+                    );
+        } else {
+            Log.info("TransferBatch is already running. Skipping this execution.");
+        }
     }
 
     @Retry(maxRetries = MAX_RETRIES, delay = 30000, retryOn = Exception.class)
@@ -164,9 +212,35 @@ public class TransferBatch {
                 .onFailure().invoke(e -> Log.errorf("Error in stopAdmEngine: %s", e.getMessage()));
     }
 
+//    public Uni<Response> batchStart(String siteId) {
+//        Log.info("Batch start requested");
+//        this.siteId = siteId;
+//        startSchedule();
+//        return Uni.createFrom().item(Response.ok().build());
+//    }
+
+
     public Uni<Response> batchStart(String siteId) {
-        this.siteId = siteId;
-        schedule();
-        return Uni.createFrom().item(Response.ok().build());
+        if (isRunning.get()) {
+            Log.info("TransferBatch is already running. Rejecting this request.");
+            return Uni.createFrom().item(Response.status(Response.Status.CONFLICT)
+                    .entity("Batch is already running").build());
+        }
+
+        if (isRunning.compareAndSet(false, true)) {
+            this.siteId = siteId;
+            Log.info("HTTP batchStart requested. Starting batch process.");
+
+            // 배치 프로세스를 백그라운드에서 시작
+            startTransferBatchAsync();
+
+            return Uni.createFrom().item(Response.ok()
+                    .entity("Batch process started successfully").build());
+        } else {
+            // 극히 드문 경우지만, 다른 스레드가 먼저 실행을 시작했을 경우
+            Log.info("TransferBatch was just started by another request. Rejecting this one.");
+            return Uni.createFrom().item(Response.status(Response.Status.CONFLICT)
+                    .entity("Batch was just started by another request").build());
+        }
     }
 }
