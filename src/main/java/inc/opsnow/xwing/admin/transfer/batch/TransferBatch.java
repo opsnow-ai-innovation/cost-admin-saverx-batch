@@ -16,8 +16,6 @@ import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -56,8 +54,6 @@ public class TransferBatch {
 
     @Scheduled(cron = "{batch.schedule}")
     void schedule(ScheduledExecution execution) {
-//    @Scheduled(cron = batchSchedule, identity = "transfer-init-daily-job")
-//    void schedule() {
         if (isRunning.compareAndSet(false, true)) {
             Log.info("Schedule start requested");
             startTransferBatchAsync();
@@ -78,37 +74,6 @@ public class TransferBatch {
                             isRunning.set(false);
                         }
                 );
-    }
-
-
-    //@Scheduled(cron = "0 0 7 * * ?", identity = "transfer-init-daily-job")
-    void schedule1() {
-        if (isRunning.compareAndSet(false, true)) {
-            Log.info("schedule start requested");
-
-            LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            String formattedDateTime = now.format(formatter);
-
-            Log.infof("Daily job executed at: " + formattedDateTime);
-            Log.infof("TransferBatch schedule start");
-
-            startTransferBatch()
-                    .onItem().invoke(() -> Log.info("TransferBatch schedule completed successfully"))
-                    .onFailure().invoke(error -> Log.error("TransferBatch schedule failed", error))
-                    .subscribe().with(
-                            item -> {
-                                Log.info("TransferBatch completed successfully");
-                                isRunning.set(false);
-                            },
-                            error -> {
-                                Log.error("TransferBatch failed", error);
-                                isRunning.set(false);
-                            }
-                    );
-        } else {
-            Log.info("TransferBatch is already running. Skipping this execution.");
-        }
     }
 
     @Retry(maxRetries = MAX_RETRIES, delay = 30000, retryOn = Exception.class)
@@ -211,14 +176,6 @@ public class TransferBatch {
                 })
                 .onFailure().invoke(e -> Log.errorf("Error in stopAdmEngine: %s", e.getMessage()));
     }
-
-//    public Uni<Response> batchStart(String siteId) {
-//        Log.info("Batch start requested");
-//        this.siteId = siteId;
-//        startSchedule();
-//        return Uni.createFrom().item(Response.ok().build());
-//    }
-
 
     public Uni<Response> batchStart(String siteId) {
         if (isRunning.get()) {

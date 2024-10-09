@@ -11,14 +11,20 @@ import io.vertx.mutiny.sqlclient.SqlConnection;
 import io.vertx.mutiny.sqlclient.Tuple;
 import io.vertx.sqlclient.TransactionPropagation;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.*;
 
 @ApplicationScoped
 public class DashboardRepository extends RepositoryBase {
 
+
+    @ConfigProperty(name = "default.target.coverage", defaultValue = "90")
+    String defaultTargetCoverage;
+
+
     public Uni<List<AwsSitePayer>> getPayer(MySQLPool pool, String siteId) {   //GET_PAYER
-        return findAll(pool, DashboardQuery.GET_PAYER, Tuple.of(siteId), AwsSitePayer.class);
+        return findAll(pool, DashboardQuery.GET_PAYER.replaceAll("%defaultTargetCoverage%",defaultTargetCoverage), Tuple.of(siteId), AwsSitePayer.class);
     }
 
     public Uni<Integer> saveAccountInfo(MySQLPool pool, String siteId, List<AccountInfo> accountInfos) {   //SAVE_PAYER

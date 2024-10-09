@@ -10,7 +10,7 @@ public class DashboardQuery {
                    c.CMPN_NM,
                    s.PAYR_ACC_ID,
                    l.ALIAS,
-                   COALESCE(t.TARGET_COV, 100) as TARGET_COV,
+                   COALESCE(t.TARGET_COV, %defaultTargetCoverage%) as TARGET_COV,
                    COALESCE(t.FIX_YN, 'N') as FIX_YN
             from bill.tbil_cmpn_sbsc_svc_acc_l s
                 join bill.tbil_cmpn_l c on s.CMPN_ID = c.CMPN_ID and s.SITE_ID = c.SITE_ID
