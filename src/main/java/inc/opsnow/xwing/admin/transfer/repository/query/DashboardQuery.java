@@ -83,6 +83,7 @@ public class DashboardQuery {
                  bill.%PFX%_tbil_sp_utl_l u ON (t.SEND_PAYER_ID = u.PAYR_ACC_ID OR t.RECV_PAYER_ID = u.PAYR_ACC_ID)
                      AND t.LNKD_ACC_ID = u.LNKD_ACC_ID
             WHERE t.SITE_ID = ?
+                AND t.CURRENT_STATE = 'Transferred'
             GROUP BY t.SEND_PAYER_ID, t.RECV_PAYER_ID, t.LNKD_ACC_ID
             """;
 
