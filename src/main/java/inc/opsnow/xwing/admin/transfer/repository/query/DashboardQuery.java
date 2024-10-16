@@ -104,6 +104,7 @@ public class DashboardQuery {
             SET CURRENT_STATE = 'Completed'
             WHERE SITE_ID = ?
             AND LNKD_ACC_ID in (%COMPLETED_LNKD_ACC_IDS%) 
+            AND CURRENT_STATE = 'Transferred'
             """;
 
 }
