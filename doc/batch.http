@@ -1,4 +1,7 @@
 
+### 엔진 카운트 조정
+POST https://api.opsnow.io/saverx/v1/admin/batch/ecs/update-admengine?desiredCount=0
 
-###
-GET https://api.opsnow.io/saverx/v1/admin/batch/dashboard/payer/OPSNOW
+
+### 배치 실행 (OPSNOW)
+GET https://api.opsnow.io/saverx/v1/admin/batch/dashboard/payer/OPSNOW?force=true
