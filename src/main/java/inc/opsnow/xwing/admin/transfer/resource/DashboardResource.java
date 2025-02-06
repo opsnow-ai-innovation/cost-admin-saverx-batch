@@ -16,7 +16,11 @@ public class DashboardResource {
 
     @GET
     @Path("/payer/{siteId}")
-    public Uni<Response> getPayer(@PathParam("siteId") String siteId) {
-        return transferBatch.batchStart(siteId);
+    public Uni<Response> getPayer(@PathParam("siteId") String siteId, @QueryParam("force") String force) {
+        boolean forceBoolean = false;
+        if(force != null && force.equals("true")) {
+            forceBoolean = true;
+        }
+        return transferBatch.batchStart(siteId, forceBoolean);
     }
 }

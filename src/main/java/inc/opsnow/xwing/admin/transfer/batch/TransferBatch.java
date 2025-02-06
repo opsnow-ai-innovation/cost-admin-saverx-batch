@@ -177,7 +177,15 @@ public class TransferBatch {
                 .onFailure().invoke(e -> Log.errorf("Error in stopAdmEngine: %s", e.getMessage()));
     }
 
-    public Uni<Response> batchStart(String siteId) {
+    public Uni<Response> batchStart(String siteId, boolean force) {
+
+        if(force) {
+            Log.info("Force option is enabled. Starting batch process.");
+            startTransferBatchAsync();
+            return Uni.createFrom().item(Response.ok()
+                    .entity("Batch process started successfully").build());
+        }
+
         if (isRunning.get()) {
             Log.info("TransferBatch is already running. Rejecting this request.");
             return Uni.createFrom().item(Response.status(Response.Status.CONFLICT)
