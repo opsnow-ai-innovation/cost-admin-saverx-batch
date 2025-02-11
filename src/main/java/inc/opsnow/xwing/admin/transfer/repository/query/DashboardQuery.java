@@ -66,7 +66,7 @@ public class DashboardQuery {
     public final static String SELECT_PFX = """
             select PFX from bill.tbil_pfx_h
             """;
-// TODO
+
 //    후처리 : 어카운트가 이동 후 정상적으로 수집을 시작하였는지 확인
 //    1) x_transfer 테이블에서 이동한 어카운트에 대해 수집된 데이터가 있는지 확인
 //    2) 수집되지 않으면 x_account_info의 status = 'LOCK' 으로 업데이트
