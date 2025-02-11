@@ -32,7 +32,8 @@ public class DashboardRepository extends RepositoryBase {
         List<Tuple> tuples = convertToTupleList(accountInfos, AccountInfo.class);
 
         return pool.withTransaction(TransactionPropagation.CONTEXT, connection -> {
-            return delete(connection, DashboardQuery.DELETE_ACCOUNT_INFO_RESULT, Tuple.of(siteId))
+            return delete(connection, DashboardQuery.DELETE_RECOMMEND_RESULT, Tuple.of(siteId))
+                    .chain(v -> delete(connection, DashboardQuery.DELETE_ACCOUNT_INFO_RESULT, Tuple.of(siteId)))
                     .chain(v -> delete(connection, DashboardQuery.DELETE_ACCOUNT_INFO, Tuple.of(siteId)))
                     .chain(v -> saveAll(connection, DashboardQuery.INSERT_ACCOUNT_INFO, tuples));
         });
