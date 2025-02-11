@@ -159,13 +159,17 @@ public class DashboardService {
                     try {
 
                         Log.infof("Received response for payer %s: %s", accountInfo.getPayerId(), item.toString());
-                        if (item.getData().get("p1").getUtilization() == null || item.getData().get("p1").getCoverage() == null) {
-                            Log.errorf("Missing data for payer %s: %s", accountInfo.getPayerId(), item.toString());
-                            return accountInfo;
+                        
+                        if (item.getData().get("p1").getUtilization() != null) {
+                            accountInfo.setAvgUtilPercent(item.getData().get("p1").getUtilization().getTotalUtilization());
+                        } else {
+                            accountInfo.setAvgUtilPercent(0.0);
                         }
-
-                        accountInfo.setAvgUtilPercent(item.getData().get("p1").getUtilization().getTotalUtilization());
-                        accountInfo.setAvgCovPercent(item.getData().get("p1").getCoverage().getTotalCoverage());
+                        if (item.getData().get("p1").getCoverage() != null) {
+                            accountInfo.setAvgCovPercent(item.getData().get("p1").getCoverage().getTotalCoverage());
+                        } else {
+                            accountInfo.setAvgCovPercent(0.0);
+                        }
 
                         return accountInfo;
                     } catch (Exception e) {
