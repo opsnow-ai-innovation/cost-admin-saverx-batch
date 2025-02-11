@@ -34,7 +34,7 @@ public abstract class BaseResourceTest {
     @BeforeAll
     protected static void initializedField() {
         TOKEN = ResourceUtil.getResource("token.txt");
-        VALID_STR = "VALID_" + UUID.randomUUID();       // FIXME : 선언 대신 생성 메소드로 대체할 것
+        VALID_STR = "VALID_" + UUID.randomUUID();       // 선언 대신 생성 메소드로 대체할 것
         INVALID_STR = "INVALID" + UUID.randomUUID();
         INVALID_LONG = ThreadLocalRandom.current().nextLong();
 
