@@ -127,15 +127,23 @@ public class DashboardService {
 
         if (accountSummary.getData().get("p1") != null && accountSummary.getData().get("p1").getUtilization() != null) {
             accountInfo.setP1UtilPercent(accountSummary.getData().get("p1").getUtilization().getTotalUtilization());
+        } else {
+            accountInfo.setP1UtilPercent(0.0);
         }
         if (accountSummary.getData().get("p1") != null && accountSummary.getData().get("p1").getCoverage() != null) {
             accountInfo.setP1CovPercent(accountSummary.getData().get("p1").getCoverage().getTotalCoverage());
+        } else {
+            accountInfo.setP1CovPercent(0.0);
         }
         if (accountSummary.getData().get("p2") != null && accountSummary.getData().get("p2").getUtilization() != null) {
             accountInfo.setP2UtilPercent(accountSummary.getData().get("p2").getUtilization().getTotalUtilization());
+        } else {
+            accountInfo.setP2UtilPercent(0.0);
         }
         if (accountSummary.getData().get("p2") != null && accountSummary.getData().get("p2").getCoverage() != null) {
             accountInfo.setP2CovPercent(accountSummary.getData().get("p2").getCoverage().getTotalCoverage());
+        } else {
+            accountInfo.setP2CovPercent(0.0);
         }
 
         return accountInfo;
