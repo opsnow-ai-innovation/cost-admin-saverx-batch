@@ -52,8 +52,11 @@ public class DashboardService {
                 ;
     }
 
-    public Uni<Integer> getAccountInfoCommitCount(String siteId) {
-        return dashboardRepository.getAccountInfoCommitCount(billPool, siteId);
+    public Uni<Integer> getAccountInfoNormalCommitCount(String siteId) {
+        return dashboardRepository.getAccountInfoNormalCommitCount(billPool, siteId);
+    }
+    public Uni<Integer> getAccountInfoOptimCommitCount(String siteId) {
+        return dashboardRepository.getAccountInfoOptimCommitCount(billPool, siteId);
     }
 
 

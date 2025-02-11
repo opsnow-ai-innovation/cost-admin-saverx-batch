@@ -38,10 +38,18 @@ public class DashboardRepository extends RepositoryBase {
         });
     }
 
-    public Uni<Integer> getAccountInfoCommitCount(MySQLPool pool, String siteId) {   //GET_ACCOUNT_INFO_COMMIT_COUNT
-        return findById(pool, DashboardQuery.GET_ACCOUNT_INFO_COMMIT_COUNT, Tuple.of(siteId))
+    //GET_ACCOUNT_INFO_NORMAL_COMMIT_COUNT
+    public Uni<Integer> getAccountInfoNormalCommitCount(MySQLPool pool, String siteId) {   //GET_ACCOUNT_INFO_NORMAL_COMMIT_COUNT
+        return findById(pool, DashboardQuery.GET_ACCOUNT_INFO_NORMAL_COMMIT_COUNT, Tuple.of(siteId))
                 .onItem().transform(row -> row.getInteger("cnt"));
     }
+
+    //GET_ACCOUNT_INFO_OPTIM_COMMIT_COUNT
+    public Uni<Integer> getAccountInfoOptimCommitCount(MySQLPool pool, String siteId) {   //GET_ACCOUNT_INFO_OPTIM_COMMIT_COUNT
+        return findById(pool, DashboardQuery.GET_ACCOUNT_INFO_OPTIM_COMMIT_COUNT, Tuple.of(siteId))
+                .onItem().transform(row -> row.getInteger("cnt"));
+    }
+
 
     // <-- transaction
     public Uni<String> selectPfx(SqlConnection connection) {   //SELECT_PFX

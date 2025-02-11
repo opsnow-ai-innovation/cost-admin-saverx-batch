@@ -48,9 +48,14 @@ public class DashboardQuery {
                     NOW(), NOW())
             """;
 
-    // 커밋 상태인 데이터만 조회하여 대상과 갯수 비교 -> 일치하면 Engine ECS 종료
-    public final static String GET_ACCOUNT_INFO_COMMIT_COUNT = """
+    // STATUS가 커밋 상태인 데이터만 조회하여 대상과 갯수 비교 -> 일치하면 옵티마이즈 API 호출
+    public final static String GET_ACCOUNT_INFO_NORMAL_COMMIT_COUNT = """
             select count(0) cnt from cmp_admin.x_account_info where SITE_ID=? and STATUS='COMMIT'
+            """;
+
+    // OPTIM_STATUS가 커밋 상태인 데이터만 조회하여 대상과 갯수 비교 -> 일치하면 Engine ECS 종료
+    public final static String GET_ACCOUNT_INFO_OPTIM_COMMIT_COUNT = """
+            select count(0) cnt from cmp_admin.x_account_info where SITE_ID=? and OPTIM_STATUS='COMMIT'
             """;
 
     // select PFX from bill_new.tbil_pfx_h;

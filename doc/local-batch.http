@@ -1,0 +1,7 @@
+
+### 엔진 카운트 조정
+POST http://127.0.0.1:9005/saverx/v1/admin/batch/ecs/update-admengine?desiredCount=0
+
+
+### 배치 실행 (OPSNOW)
+GET http://127.0.0.1:9005/saverx/v1/admin/batch/dashboard/payer/OPSNOW?force=true

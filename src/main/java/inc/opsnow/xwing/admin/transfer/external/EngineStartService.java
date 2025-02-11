@@ -18,6 +18,12 @@ public interface EngineStartService {
     @Path("/ai-saverx-engine/trigger")
     @Produces(MediaType.APPLICATION_JSON)
     Uni<Response> getTrigger();
+
+    @GET
+    @Path("/ai-saverx-engine/optimize")
+    @Produces(MediaType.APPLICATION_JSON)
+    Uni<Response> getOptimize();
+
     @GET
     @Path("/health")
     @Produces(MediaType.APPLICATION_JSON)

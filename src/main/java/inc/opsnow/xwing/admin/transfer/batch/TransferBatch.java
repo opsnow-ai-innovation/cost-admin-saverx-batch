@@ -84,8 +84,11 @@ public class TransferBatch {
                 .onItem().delayIt().by(POST_WAIT) // 정상 확인 후 10초 대기
                 .chain(v -> processDashboardAndTrigger()) // 대시보드 처리 및 트리거 호출
                 .onItem().delayIt().by(INITIAL_WAIT) // 2분 대기
-                .chain(expectedCount -> getAccountInfoCommitCount(siteId, expectedCount)) // 매 30초마다 50분간 commit count==expectedCount 체크
-                .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
+                .chain(expectedCount -> getAccountInfoCommitCount(siteId, expectedCount) // 매 30초마다 50분간 commit count==expectedCount 체크
+                        .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
+                        .chain(v -> processOptimize()) // 최적화 처리
+                        .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
+                        .chain(v -> tryGetAccountInfoOptimCommitCount(siteId, expectedCount))) // Optim commit count 체크
                 .chain(v -> stopAdmEngine()) // 엔진 중지
                 .onItem().delayIt().by(POST_WAIT) // 처리 후 10초 대기
                 .chain(v -> dashboardService.updateStatus(siteId)) // 상태 업데이트
@@ -138,28 +141,60 @@ public class TransferBatch {
                 ;
     }
 
+    private Uni<Void> processOptimize() {
+        return engineStartService.getOptimize()
+                        .chain(response -> {
+                            if (response.getStatus() == 200) {
+                                Log.info("EngineStartService getOptimize successful");
+                                return Uni.createFrom().item(null);
+                            } else {
+                                Log.errorf("EngineStartService getOptimize failed with status: %d", response.getStatus());
+                                return Uni.createFrom().failure(new RuntimeException("EngineStartService getOptimize failed"));
+                            }
+                        })
+                ;
+    }
+
     private Uni<Void> getAccountInfoCommitCount(String siteId, Integer expectedCount) {
         return Uni.createFrom().voidItem()
-                .chain(() -> tryGetAccountInfoCommitCount(siteId, expectedCount)) // 실제 체크 로직으로 체이닝
+                .chain(() -> tryGetAccountInfoNormalCommitCount(siteId, expectedCount)) // 실제 체크 로직으로 체이닝
                 .onFailure().retry().withBackOff(CHECK_INTERVAL).atMost(MAX_CHECK_DURATION.dividedBy(CHECK_INTERVAL)); // 10초 간격으로 최대 5분간 재시도
     }
 
-    private Uni<Void> tryGetAccountInfoCommitCount(String siteId, Integer expectedCount) {
-        return dashboardService.getAccountInfoCommitCount(siteId)
+    private Uni<Void> tryGetAccountInfoNormalCommitCount(String siteId, Integer expectedCount) {
+        return dashboardService.getAccountInfoNormalCommitCount(siteId)
                 .chain(count -> {
-                    Log.infof("AccountInfo commit count: %d, expected: %d", count, expectedCount);
+                    Log.infof("AccountInfo Normal commit count: %d, expected: %d", count, expectedCount);
                     Log.infof("count class name: %s", count.getClass().getName());
                     Log.infof("expectedCount class name: %s", expectedCount.getClass().getName());
 
                     if (Objects.equals(count, expectedCount)) {
-                        Log.infof("AccountInfo commit count matched: %d", count);
+                        Log.infof("AccountInfo Normal commit count matched: %d", count);
                         return Uni.createFrom().voidItem(); // count가 일치하면 성공 처리
                     } else {
-                        Log.infof("AccountInfo commit count: %d, expected: %d. Retrying...", count, expectedCount);
-                        return Uni.createFrom().failure(new RuntimeException("AccountInfo commit count mismatch")); // 일치하지 않으면 실패 처리하여 재시도
+                        Log.infof("AccountInfo Normal commit count: %d, expected: %d. Retrying...", count, expectedCount);
+                        return Uni.createFrom().failure(new RuntimeException("AccountInfo Normal commit count mismatch")); // 일치하지 않으면 실패 처리하여 재시도
                     }
                 })
-                .onFailure().invoke(e -> Log.warn("Retrying commit count check..."));
+                .onFailure().invoke(e -> Log.warn("Retrying Normal commit count check..."));
+    }
+
+    private Uni<Void> tryGetAccountInfoOptimCommitCount(String siteId, Integer expectedCount) {
+        return dashboardService.getAccountInfoOptimCommitCount(siteId)
+                .chain(count -> {
+                    Log.infof("AccountInfo Optim commit count: %d, expected: %d", count, expectedCount);
+                    Log.infof("count class name: %s", count.getClass().getName());
+                    Log.infof("expectedCount class name: %s", expectedCount.getClass().getName());
+
+                    if (Objects.equals(count, expectedCount)) {
+                        Log.infof("AccountInfo Optim commit count matched: %d", count);
+                        return Uni.createFrom().voidItem(); // count가 일치하면 성공 처리
+                    } else {
+                        Log.infof("AccountInfo Optim commit count: %d, expected: %d. Retrying...", count, expectedCount);
+                        return Uni.createFrom().failure(new RuntimeException("AccountInfo Optim commit count mismatch")); // 일치하지 않으면 실패 처리하여 재시도
+                    }
+                })
+                .onFailure().invoke(e -> Log.warn("Retrying Optim commit count check..."));
     }
 
     private Uni<Void> stopAdmEngine() {
@@ -179,7 +214,7 @@ public class TransferBatch {
 
     public Uni<Response> batchStart(String siteId, boolean force) {
 
-        if(force) {
+        if (force) {
             Log.info("Force option is enabled. Starting batch process.");
             startTransferBatchAsync();
             return Uni.createFrom().item(Response.ok()

@@ -18,6 +18,7 @@ public class AccountInfo {
     private Double targetCov;
     private String fixYn;
     private String status;
+    private String optimStatus;
     private String lastCollectionDay;
     private Double latestUtilPercent;
     private Double latestCovPercent;
@@ -148,6 +149,14 @@ public class AccountInfo {
         this.status = status;
     }
 
+    public String getOptimStatus() {
+        return optimStatus;
+    }
+
+    public void setOptimStatus(String optimStatus) {
+        this.optimStatus = optimStatus;
+    }
+
     public String getLastCollectionDay() {
         return lastCollectionDay;
     }
@@ -216,6 +225,7 @@ public class AccountInfo {
                 ", targetCov=" + targetCov +
                 ", fixYn='" + fixYn + '\'' +
                 ", status='" + status + '\'' +
+                ", optimStatus='" + optimStatus + '\'' +
                 ", lastCollectionDay='" + lastCollectionDay + '\'' +
                 ", latestUtilPercent=" + latestUtilPercent +
                 ", latestCovPercent=" + latestCovPercent +
