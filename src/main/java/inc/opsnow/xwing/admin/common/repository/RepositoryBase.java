@@ -740,6 +740,7 @@ public abstract class RepositoryBase implements Repository {
                 .onFailure().invoke(e -> Log.error("Error executing query: " + sql, e));
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T mapToObj(Row row, Class<T> clazz) {
         Log.debugf("Starting mapToObj for class: %s", clazz.getName());
         try {

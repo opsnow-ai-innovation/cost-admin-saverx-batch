@@ -125,16 +125,16 @@ public class DashboardService {
             accountInfo.setLatestCovPercent(0.0);
         }
 
-        if (accountSummary.getData().get("p1").getUtilization() != null) {
+        if (accountSummary.getData().get("p1") != null && accountSummary.getData().get("p1").getUtilization() != null) {
             accountInfo.setP1UtilPercent(accountSummary.getData().get("p1").getUtilization().getTotalUtilization());
         }
-        if (accountSummary.getData().get("p1").getCoverage() != null) {
+        if (accountSummary.getData().get("p1") != null && accountSummary.getData().get("p1").getCoverage() != null) {
             accountInfo.setP1CovPercent(accountSummary.getData().get("p1").getCoverage().getTotalCoverage());
         }
-        if (accountSummary.getData().get("p2").getUtilization() != null) {
+        if (accountSummary.getData().get("p2") != null && accountSummary.getData().get("p2").getUtilization() != null) {
             accountInfo.setP2UtilPercent(accountSummary.getData().get("p2").getUtilization().getTotalUtilization());
         }
-        if (accountSummary.getData().get("p2").getCoverage() != null) {
+        if (accountSummary.getData().get("p2") != null && accountSummary.getData().get("p2").getCoverage() != null) {
             accountInfo.setP2CovPercent(accountSummary.getData().get("p2").getCoverage().getTotalCoverage());
         }
 
