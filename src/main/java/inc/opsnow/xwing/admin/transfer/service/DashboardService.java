@@ -18,6 +18,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 
 @ApplicationScoped
@@ -101,7 +102,6 @@ public class DashboardService {
     }
 
     private AccountInfo mapFromSummary(AwsSitePayer payer, GetAwsPayerAccountSummaryResponse accountSummary) throws Exception {
-
         Log.info(accountSummary.toString());
 
         AccountInfo accountInfo = new AccountInfo();
@@ -114,37 +114,51 @@ public class DashboardService {
         accountInfo.setFixYn(payer.getFixYn());
         accountInfo.setLastCollectionDay(accountSummary.getLastUseDate());
 
-        if (accountSummary.getLatest() != null && accountSummary.getLatest().getUtilization() != null) {
-            accountInfo.setLatestUtilPercent(accountSummary.getLatest().getUtilization().getTotalUtilization());
-        } else {
-            accountInfo.setLatestUtilPercent(0.0);
-        }
-        if (accountSummary.getLatest() != null && accountSummary.getLatest().getCoverage() != null) {
-            accountInfo.setLatestCovPercent(accountSummary.getLatest().getCoverage().getTotalCoverage());
-        } else {
-            accountInfo.setLatestCovPercent(0.0);
-        }
+        accountInfo.setLatestUtilPercent(
+            Optional.ofNullable(accountSummary.getLatest())
+                .map(latest -> latest.getUtilization())
+                .map(util -> util.getTotalUtilization())
+                .orElse(0.0)
+        );
+        
+        accountInfo.setLatestCovPercent(
+            Optional.ofNullable(accountSummary.getLatest())
+                .map(latest -> latest.getCoverage())
+                .map(cov -> cov.getTotalCoverage())
+                .orElse(0.0)
+        );
 
-        if (accountSummary.getData().get("p1") != null && accountSummary.getData().get("p1").getUtilization() != null) {
-            accountInfo.setP1UtilPercent(accountSummary.getData().get("p1").getUtilization().getTotalUtilization());
-        } else {
-            accountInfo.setP1UtilPercent(0.0);
-        }
-        if (accountSummary.getData().get("p1") != null && accountSummary.getData().get("p1").getCoverage() != null) {
-            accountInfo.setP1CovPercent(accountSummary.getData().get("p1").getCoverage().getTotalCoverage());
-        } else {
-            accountInfo.setP1CovPercent(0.0);
-        }
-        if (accountSummary.getData().get("p2") != null && accountSummary.getData().get("p2").getUtilization() != null) {
-            accountInfo.setP2UtilPercent(accountSummary.getData().get("p2").getUtilization().getTotalUtilization());
-        } else {
-            accountInfo.setP2UtilPercent(0.0);
-        }
-        if (accountSummary.getData().get("p2") != null && accountSummary.getData().get("p2").getCoverage() != null) {
-            accountInfo.setP2CovPercent(accountSummary.getData().get("p2").getCoverage().getTotalCoverage());
-        } else {
-            accountInfo.setP2CovPercent(0.0);
-        }
+        accountInfo.setP1UtilPercent(
+            Optional.ofNullable(accountSummary.getData())
+                .map(data -> data.get("p1"))
+                .map(p1 -> p1.getUtilization())
+                .map(util -> util.getTotalUtilization())
+                .orElse(0.0)
+        );
+
+        accountInfo.setP1CovPercent(
+            Optional.ofNullable(accountSummary.getData())
+                .map(data -> data.get("p1"))
+                .map(p1 -> p1.getCoverage())
+                .map(cov -> cov.getTotalCoverage())
+                .orElse(0.0)
+        );
+
+        accountInfo.setP2UtilPercent(
+            Optional.ofNullable(accountSummary.getData())
+                .map(data -> data.get("p2"))
+                .map(p2 -> p2.getUtilization())
+                .map(util -> util.getTotalUtilization())
+                .orElse(0.0)
+        );
+
+        accountInfo.setP2CovPercent(
+            Optional.ofNullable(accountSummary.getData())
+                .map(data -> data.get("p2"))
+                .map(p2 -> p2.getCoverage())
+                .map(cov -> cov.getTotalCoverage())
+                .orElse(0.0)
+        );
 
         return accountInfo;
     }
@@ -157,19 +171,23 @@ public class DashboardService {
                 .onItem().invoke(item -> Log.info("Received response for payer " + accountInfo.getPayerId() + ": " + item.getStatus()))
                 .map(item -> {
                     try {
-
                         Log.infof("Received response for payer %s: %s", accountInfo.getPayerId(), item.toString());
                         
-                        if (item.getData().get("p1").getUtilization() != null) {
-                            accountInfo.setAvgUtilPercent(item.getData().get("p1").getUtilization().getTotalUtilization());
-                        } else {
-                            accountInfo.setAvgUtilPercent(0.0);
-                        }
-                        if (item.getData().get("p1").getCoverage() != null) {
-                            accountInfo.setAvgCovPercent(item.getData().get("p1").getCoverage().getTotalCoverage());
-                        } else {
-                            accountInfo.setAvgCovPercent(0.0);
-                        }
+                        accountInfo.setAvgUtilPercent(
+                            Optional.ofNullable(item.getData())
+                                .map(data -> data.get("p1"))
+                                .map(p1 -> p1.getUtilization())
+                                .map(util -> util.getTotalUtilization())
+                                .orElse(0.0)
+                        );
+
+                        accountInfo.setAvgCovPercent(
+                            Optional.ofNullable(item.getData())
+                                .map(data -> data.get("p1"))
+                                .map(p1 -> p1.getCoverage())
+                                .map(cov -> cov.getTotalCoverage())
+                                .orElse(0.0)
+                        );
 
                         return accountInfo;
                     } catch (Exception e) {
