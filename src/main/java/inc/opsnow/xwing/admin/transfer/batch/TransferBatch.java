@@ -146,7 +146,7 @@ public class TransferBatch {
                         .chain(response -> {
                             if (response.getStatus() == 200) {
                                 Log.info("EngineStartService getOptimize successful");
-                                return Uni.createFrom().item(null);
+                                return Uni.createFrom().voidItem();
                             } else {
                                 Log.errorf("EngineStartService getOptimize failed with status: %d", response.getStatus());
                                 return Uni.createFrom().failure(new RuntimeException("EngineStartService getOptimize failed"));
