@@ -1,0 +1,39 @@
+name: Mock deploy-java
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      service_name:
+        required: false
+        type: string
+      ecr_repository:
+        required: false
+        type: string
+      cluster_name:
+        required: false
+        type: string
+      docker_platform:
+        required: false
+        type: string
+        default: 'linux/arm64'
+      java_version:
+        required: false
+        type: string
+        default: '21'
+
+jobs:
+  mock-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mock deployment
+        run: |
+          echo "🚀 Mock deployment started"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Service: ${{ inputs.service_name }}"
+          echo "ECR Repo: ${{ inputs.ecr_repository }}"
+          echo "Cluster: ${{ inputs.cluster_name }}"
+          echo "Platform: ${{ inputs.docker_platform }}"
+          echo "Java Version: ${{ inputs.java_version }}"
+          echo "✅ Mock deployment completed"

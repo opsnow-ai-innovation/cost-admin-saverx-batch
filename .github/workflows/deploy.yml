@@ -1,0 +1,119 @@
+name: 🚀 Deploy Cost Admin Saverx Batch
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '배포 환경'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - us2
+
+permissions:
+  id-token: write
+  contents: read
+  packages: read
+  actions: read
+  issues: write
+
+jobs:
+  setup:
+    name: Setup Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.config.outputs.environment }}
+      build_profile: ${{ steps.config.outputs.build_profile }}
+      service_name: ${{ steps.config.outputs.service_name }}
+      ecr_repository: ${{ steps.config.outputs.ecr_repository }}
+      cluster_name: ${{ steps.config.outputs.cluster_name }}
+      docker_platform: ${{ steps.config.outputs.docker_platform }}
+      dockerfile_path: ${{ steps.config.outputs.dockerfile_path }}
+    steps:
+      - name: Determine Configuration
+        id: config
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            ENV="dev"
+          else
+            ENV="${{ github.event.inputs.environment }}"
+          fi
+
+          # Set default Docker configuration
+          DOCKER_PLATFORM="linux/arm64"
+          DOCKERFILE_PATH="./src/main/docker/Dockerfile.legacy-dev-jar"
+
+          # Set configuration based on environment
+          case "$ENV" in
+            dev)
+              SERVICE_NAME="dev-an2d-saverx-admbatch-ecss"
+              ECR_REPOSITORY="dev-an2d-saverx-admbatch-ecr"
+              CLUSTER_NAME="dev-an2d-ecs"
+              DOCKERFILE_PATH="./src/main/docker/Dockerfile.legacy-dev-jar"
+              BUILD_PROFILE="dev"
+              ;;
+            us2)
+              SERVICE_NAME="us2-ue1p-saverx-admbatch-ecss"
+              ECR_REPOSITORY="us2-ue1p-saverx-admbatch-ecr"
+              CLUSTER_NAME="us2-ue1p-ecs"
+              DOCKERFILE_PATH="./src/main/docker/Dockerfile.legacy-prod-jar"
+              BUILD_PROFILE="prod"  # us2는 prod 프로파일 사용
+              ;;
+            *)
+              echo "❌ Unsupported environment: $ENV"
+              echo "📋 Supported environments: dev, us2"
+              exit 1
+              ;;
+          esac
+
+          echo "🔧 Configuration for environment: $ENV"
+          echo "   Service Name: $SERVICE_NAME"
+          echo "   ECR Repository: $ECR_REPOSITORY"
+          echo "   Cluster Name: $CLUSTER_NAME"
+          echo "   Docker Platform: $DOCKER_PLATFORM"
+          echo "   Dockerfile Path: $DOCKERFILE_PATH"
+          echo "   Build Profile: $BUILD_PROFILE"
+
+          # Set outputs
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+          echo "build_profile=$BUILD_PROFILE" >> $GITHUB_OUTPUT
+          echo "service_name=$SERVICE_NAME" >> $GITHUB_OUTPUT
+          echo "ecr_repository=$ECR_REPOSITORY" >> $GITHUB_OUTPUT
+          echo "cluster_name=$CLUSTER_NAME" >> $GITHUB_OUTPUT
+          echo "docker_platform=$DOCKER_PLATFORM" >> $GITHUB_OUTPUT
+          echo "dockerfile_path=$DOCKERFILE_PATH" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: Deploy to ${{ needs.setup.outputs.environment }}
+    needs: setup
+    if: github.actor != 'nektos/act'
+    uses: opsnow-common/common-ci-cd/.github/workflows/deploy-java.yml@main
+    with:
+      environment: ${{ needs.setup.outputs.environment }}
+      service_name: ${{ needs.setup.outputs.service_name }}
+      project_name: 'cost-admin-saverx-batch'
+      ecr_repository: ${{ needs.setup.outputs.ecr_repository }}
+      cluster_name: ${{ needs.setup.outputs.cluster_name }}
+      docker_platform: ${{ needs.setup.outputs.docker_platform }}
+      dockerfile_path: ${{ needs.setup.outputs.dockerfile_path }}
+      java_version: '21'
+      maven_opts: '-Xmx1024m -Dquarkus.package.type=legacy-jar -Dquarkus.profile=${{ needs.setup.outputs.build_profile }}'
+    secrets: inherit
+
+  deploy-local:
+    name: Deploy Locally (nektos/act)
+    needs: setup
+    if: github.actor == 'nektos/act'
+    uses: ./.github/workflows/deploy-java-local.yml
+    with:
+      environment: ${{ needs.setup.outputs.environment }}
+      service_name: ${{ needs.setup.outputs.service_name }}
+      ecr_repository: ${{ needs.setup.outputs.ecr_repository }}
+      cluster_name: ${{ needs.setup.outputs.cluster_name }}
+      docker_platform: 'linux/arm64'
+      java_version: '21'
