@@ -14,6 +14,7 @@ on:
         options:
           - dev
           - us2
+          - uae
 
 permissions:
   id-token: write
@@ -64,9 +65,16 @@ jobs:
               DOCKERFILE_PATH="./src/main/docker/Dockerfile.legacy-prod-jar"
               BUILD_PROFILE="prod"  # us2는 prod 프로파일 사용
               ;;
+            uae)
+              SERVICE_NAME="uae-mc1p-saverx-admbatch-ecss"
+              ECR_REPOSITORY="uae-mc1p-saverx-admbatch-ecr"
+              CLUSTER_NAME="uae-mc1p-ecs"
+              DOCKERFILE_PATH="./src/main/docker/Dockerfile.legacy-uae-jar"
+              BUILD_PROFILE="uae"
+              ;;
             *)
               echo "❌ Unsupported environment: $ENV"
-              echo "📋 Supported environments: dev, us2"
+              echo "📋 Supported environments: dev, us2, uae"
               exit 1
               ;;
           esac
