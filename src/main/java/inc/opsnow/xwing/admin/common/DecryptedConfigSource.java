@@ -80,20 +80,28 @@ public class DecryptedConfigSource implements ConfigSource {
             for (String line : lines) {
                 String[] parts = line.split("=", 2);
                 if (parts.length == 2) {
-                    String decryptedValue = decryptFromHex(parts[1], aesKey);
+                    String processedValue;
+
+                    // Only decrypt fields ending with _PASSWORD
+                    if (parts[0].endsWith("_PASSWORD")) {
+                        processedValue = decryptFromHex(parts[1], aesKey);
+                    } else {
+                        // URL and USERNAME are now plaintext - use as is
+                        processedValue = parts[1];
+                    }
 
                     switch (parts[0]) {
                         case "DATABASE_URL":
-                            properties.put("quarkus.datasource.billnew.reactive.url", decryptedValue);
-                            properties.put("quarkus.datasource.jdbc.url", "jdbc:" + decryptedValue);
+                            properties.put("quarkus.datasource.billnew.reactive.url", processedValue);
+                            properties.put("quarkus.datasource.jdbc.url", "jdbc:" + processedValue);
                             break;
                         case "DATABASE_USERNAME":
-                            properties.put("quarkus.datasource.billnew.username", decryptedValue);
-                            properties.put("quarkus.datasource.username", decryptedValue);
+                            properties.put("quarkus.datasource.billnew.username", processedValue);
+                            properties.put("quarkus.datasource.username", processedValue);
                             break;
                         case "DATABASE_PASSWORD":
-                            properties.put("quarkus.datasource.billnew.password", decryptedValue);
-                            properties.put("quarkus.datasource.password", decryptedValue);
+                            properties.put("quarkus.datasource.billnew.password", processedValue);
+                            properties.put("quarkus.datasource.password", processedValue);
                             break;
                     }
                 }
